@@ -115,6 +115,7 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
   <h1>Soru Bankası</h1>
   <p class="sub" id="homeSub">Çevrimdışı çalışır. Sorular ve ilerlemen bu cihazda saklanır.</p>
   <div class="msg info hid" id="instBar"><span id="instTxt"></span><div class="acts" style="margin-top:8px"><button class="sm pri" id="instBtn">Uygulamayı yükle</button><button class="sm" id="instNo">Şimdi değil</button></div></div>
+  <p class="sub" id="surumAlt" style="margin:-8px 0 14px;font-size:12.5px"></p>
   <div class="card hid" id="resumeCard"><h2>Yarım kalan oturum</h2><p class="sub" id="resumeTxt" style="margin-bottom:10px"></p><div class="acts"><button class="pri sm" id="resumeBtn">Devam et</button><button class="sm" id="resumeDrop">Bırak</button></div></div>
   <div id="emptyHome" class="card hid">
     <h2>Havuz boş</h2>
@@ -208,6 +209,7 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
   </div>
   <div class="card">
     <h2>Uygulama</h2>
+    <p style="margin:0 0 4px;font-weight:650" id="surum"></p>
     <p class="sub" id="pwaDurum" style="margin-bottom:10px"></p>
     <div class="acts"><button id="instBtn2" class="hid">Uygulamayı yükle</button><button id="guncelle">Güncellemeyi denetle</button></div>
   </div>
@@ -227,6 +229,7 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
 
 <script>
 "use strict";
+const APP_VERSION="1.2",APP_DATE="13.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
@@ -553,6 +556,7 @@ $("instNo").onclick=()=>{st.ayar.instNo=true;save();show($("instBar"),false)};
 window.addEventListener("appinstalled",()=>{show($("instBar"),false);show($("instBtn2"),false)});
 if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
 
+$("surum").textContent="Sürüm "+APP_VERSION+" · "+APP_DATE;$("surumAlt").textContent="Sürüm "+APP_VERSION;
 (async()=>{await loadState();applyTema();buildTree();
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!navigator.standalone;
   if(ios&&!st.ayar.instNo){$("instTxt").textContent="iPhone ve iPad'de kurmak için Safari'de Paylaş düğmesine, ardından \"Ana Ekrana Ekle\"ye dokun.";show($("instBtn"),false);show($("instBar"),true)}
