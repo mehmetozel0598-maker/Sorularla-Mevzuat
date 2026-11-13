@@ -229,7 +229,7 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
 
 <script>
 "use strict";
-const APP_VERSION="1.2",APP_DATE="13.11.2026";
+const APP_VERSION="1.3",APP_DATE="13.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
@@ -554,7 +554,11 @@ async function doInstall(){if(!deferredInstall)return;deferredInstall.prompt();t
 $("instBtn").onclick=doInstall;$("instBtn2").onclick=doInstall;
 $("instNo").onclick=()=>{st.ayar.instNo=true;save();show($("instBar"),false)};
 window.addEventListener("appinstalled",()=>{show($("instBar"),false);show($("instBtn2"),false)});
-if("serviceWorker" in navigator&&location.protocol!=="file:"){window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js").catch(()=>{})})}
+if("serviceWorker" in navigator&&location.protocol!=="file:"){
+  const hadController=!!navigator.serviceWorker.controller;let reloaded=false;
+  navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController&&!reloaded){reloaded=true;flush().finally(()=>location.reload())}});
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{})});
+}
 
 $("surum").textContent="Sürüm "+APP_VERSION+" · "+APP_DATE;$("surumAlt").textContent="Sürüm "+APP_VERSION;
 (async()=>{await loadState();applyTema();buildTree();
