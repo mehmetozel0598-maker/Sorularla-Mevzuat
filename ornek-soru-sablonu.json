@@ -1,0 +1,71 @@
+{
+  "format": "soru-bankasi",
+  "surum": 1,
+  "kaynak": {
+    "ad": "Örnek Kaynak Kitap 2026"
+  },
+  "sorular": [
+    {
+      "id": "ornek-1-1-001",
+      "bolum": [
+        "Bölüm 1: Zamanaşımı",
+        "1.1 Tarh Zamanaşımı"
+      ],
+      "tur": "test",
+      "soru": "Vergi Usul Kanunu'na göre tarh zamanaşımı süresi kaç yıldır?",
+      "secenekler": [
+        "3 yıl",
+        "5 yıl",
+        "7 yıl",
+        "10 yıl",
+        "15 yıl"
+      ],
+      "dogru": 1,
+      "cozum": "Vergi alacağının doğduğu takvim yılını takip eden yılın başından başlayarak beş yıl içinde tarh ve mükellefe tebliğ edilmeyen vergiler zamanaşımına uğrar.",
+      "atif": {
+        "kitap": "Örnek Kaynak Kitap 2026",
+        "bolum": "1.1 Tarh Zamanaşımı",
+        "sayfa": 12,
+        "basiliSayfa": "4",
+        "konum": "Sayfanın ilk paragrafı",
+        "kanun": "VUK md. 114",
+        "teblig": "",
+        "diger": "",
+        "mevzuatOzeti": "Zamanaşımı süresi, vergi alacağının doğduğu yılı takip eden takvim yılının başından itibaren beş yıldır."
+      },
+      "zorluk": "kolay"
+    },
+    {
+      "id": "ornek-1-2-001",
+      "bolum": [
+        "Bölüm 1: Zamanaşımı",
+        "1.2 Uygulama",
+        "1.2.1 Süre Hesabı"
+      ],
+      "tur": "vaka",
+      "vaka": "Bir mükellefin 2020 takvim yılına ilişkin vergi alacağı 2020 yılında doğmuştur. İdare bu döneme ilişkin tarhiyatı yapmayı planlamaktadır.",
+      "soru": "Bu alacak için tarh zamanaşımı hangi tarihte dolar?",
+      "secenekler": [
+        "31.12.2023",
+        "31.12.2024",
+        "31.12.2025",
+        "31.12.2026",
+        "31.12.2030"
+      ],
+      "dogru": 2,
+      "cozum": "Süre 01.01.2021'de başlar ve beş yıl sürer: 2021, 2022, 2023, 2024, 2025. Zamanaşımı 31.12.2025 günü sonunda dolar.",
+      "atif": {
+        "kitap": "Örnek Kaynak Kitap 2026",
+        "bolum": "1.2.1 Süre Hesabı",
+        "sayfa": 15,
+        "basiliSayfa": "7",
+        "konum": "Örnek 2",
+        "kanun": "VUK md. 114",
+        "teblig": "",
+        "diger": "",
+        "mevzuatOzeti": "Beş yıllık süre, alacağın doğduğu yılı izleyen yılın ilk gününden başlar."
+      },
+      "zorluk": "orta"
+    }
+  ]
+}
