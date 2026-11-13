@@ -262,8 +262,22 @@ function download(name,text,type){const a=document.createElement("a"),u=URL.crea
 function havuzMsg(t,kind){const m=$("havuzMsg");m.textContent=t||"";m.className="msg "+(kind||"info")+(t?"":" hid")}
 
 /* ---------- soru biçimi ---------- */
+function arr(v){return Array.isArray(v)?v.map(str).filter(Boolean):str(v)?[str(v)]:[]}
+function adaptKomisyon(q,kaynak){
+  const k=q.kaynak_atiflari&&typeof q.kaynak_atiflari==="object"?q.kaynak_atiflari:{};
+  let sec=q.secenekler,dogru=q.dogru_cevap!==undefined?q.dogru_cevap:q.dogru;
+  if(sec&&!Array.isArray(sec)&&typeof sec==="object"){const ks=Object.keys(sec).sort();sec=ks.map(x=>sec[x]);if(typeof dogru==="string"){const i=ks.indexOf(dogru.trim().toUpperCase());dogru=i>=0?i:dogru}}
+  let yol=str(k.kitap_yeri).split(/\s*[>›]\s*/).filter(Boolean);
+  const ust=kaynak.split(":")[0].trim().toLocaleUpperCase("tr");
+  if(yol.length&&yol[0].toLocaleUpperCase("tr").startsWith(ust))yol=yol.slice(1);
+  const ik=arr(k.ikincil_mevzuat_ve_idari_gorusler).filter(x=>!/^Kitapta ikincil mevzuat atfı yer almamaktadır/i.test(x));
+  return {id:q.id,kaynak,bolum:yol,tur:q.vaka?"vaka":"test",vaka:q.vaka,soru:q.soru_metni!==undefined?q.soru_metni:q.soru,secenekler:sec,dogru,
+    cozum:q.gerekceli_aciklama!==undefined?q.gerekceli_aciklama:q.cozum,zorluk:q.zorluk_derecesi||q.zorluk,soruTipi:q.soru_tipi,
+    atif:{kitap:str(q.kitap),yol:str(k.kitap_yeri),bolum:"",basiliSayfa:k.sayfa,kanun:arr(k.ilgili_mevzuat).join(" · "),teblig:ik.join(" · "),diger:"",mevzuatOzeti:""}};
+}
 function normalize(q,kaynak){
   if(!q||typeof q!=="object")return null;
+  if(q.soru_metni!==undefined||q.kaynak_atiflari!==undefined||q.dogru_cevap!==undefined)q=adaptKomisyon(q,kaynak);
   const soru=str(q.soru);let sec=Array.isArray(q.secenekler)?q.secenekler.map(str).filter(Boolean):[];
   if(!soru||sec.length<2||sec.length>6)return null;
   let d=q.dogru;if(typeof d==="string"&&/^[A-Fa-f]$/.test(d.trim()))d=L.indexOf(d.trim().toUpperCase());d=Math.round(Number(d));
@@ -271,15 +285,15 @@ function normalize(q,kaynak){
   let bolum=q.bolum;if(typeof bolum==="string")bolum=bolum.split(/\s*[>›]\s*/);
   bolum=Array.isArray(bolum)?bolum.map(str).filter(Boolean):[];if(!bolum.length)bolum=["Genel"];
   const a=q.atif&&typeof q.atif==="object"?q.atif:{};
-  const atif={kitap:str(a.kitap),bolum:str(a.bolum),sayfa:str(a.sayfa!==undefined?a.sayfa:q.sayfa),basiliSayfa:str(a.basiliSayfa),konum:str(a.konum),kanun:str(a.kanun!==undefined?a.kanun:q.kanun),teblig:str(a.teblig!==undefined?a.teblig:q.teblig),diger:str(a.diger),mevzuatOzeti:str(a.mevzuatOzeti!==undefined?a.mevzuatOzeti:q.mevzuatOzeti)};
+  const atif={yol:str(a.yol),kitap:str(a.kitap),bolum:str(a.bolum),sayfa:str(a.sayfa!==undefined?a.sayfa:q.sayfa),basiliSayfa:str(a.basiliSayfa),konum:str(a.konum),kanun:str(a.kanun!==undefined?a.kanun:q.kanun),teblig:str(a.teblig!==undefined?a.teblig:q.teblig),diger:str(a.diger),mevzuatOzeti:str(a.mevzuatOzeti!==undefined?a.mevzuatOzeti:q.mevzuatOzeti)};
   const k=str(q.kaynak)||kaynak||"Genel";
-  return {id:str(q.id).replace(/\s+/g,"-")||"q"+hash(k+"|"+soru),kaynak:k,bolum,tur:q.tur==="vaka"||str(q.vaka)?"vaka":"test",vaka:str(q.vaka),soru,secenekler:sec,dogru:d,cozum:str(q.cozum!==undefined?q.cozum:q.aciklama),atif,zorluk:str(q.zorluk)};
+  return {soruTipi:str(q.soruTipi),id:str(q.id).replace(/\s+/g,"-")||"q"+hash(k+"|"+soru),kaynak:k,bolum,tur:q.tur==="vaka"||str(q.vaka)?"vaka":"test",vaka:str(q.vaka),soru,secenekler:sec,dogru:d,cozum:str(q.cozum!==undefined?q.cozum:q.aciklama),atif,zorluk:str(q.zorluk)};
 }
 function importObj(obj,fileName){
   const r={yeni:0,guncel:0,hatali:0,yedek:false};
   let list=null,kaynak=fileName.replace(/\.json$/i,"");
   if(Array.isArray(obj))list=obj;
-  else if(obj&&Array.isArray(obj.sorular)){list=obj.sorular;if(obj.kaynak)kaynak=str(typeof obj.kaynak==="object"?obj.kaynak.ad:obj.kaynak)||kaynak}
+  else if(obj&&Array.isArray(obj.sorular)){list=obj.sorular;if(obj.kaynak)kaynak=str(typeof obj.kaynak==="object"?obj.kaynak.ad:obj.kaynak)||kaynak;else if(obj.bolum_adi)kaynak=str(obj.bolum_adi)||kaynak}
   if(!list)return null;
   for(const raw of list){
     const q=normalize(raw,kaynak);if(!q){r.hatali++;continue}
@@ -403,18 +417,18 @@ function atifCard(q){
   if(a.mevzuatOzeti||a.kanun||a.teblig||a.diger){
     const b=el("div","box law");b.append(el("h3","","Mevzuat hatırlatması"));
     const bd=el("div","badges");
-    [["Kanun maddesi",a.kanun],["Tebliğ / Yönetmelik",a.teblig],["Diğer atıf",a.diger]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));bd.append(x)}});
+    [["İlgili mevzuat",a.kanun],["İkincil mevzuat ve idari görüşler",a.teblig],["Diğer atıf",a.diger]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));bd.append(x)}});
     if(bd.childNodes.length)b.append(bd);
     if(a.mevzuatOzeti){const p=el("p","",a.mevzuatOzeti);p.style.marginTop=bd.childNodes.length?"8px":"0";b.append(p)}
     frag.append(b);
   }
   const s=el("div","box src");s.append(el("h3","","Kaynaktaki yeri"));const sd=el("div","badges");
-  [["Kitap",a.kitap||q.kaynak],["Bölüm",a.bolum||q.bolum.join(SEP)],["PDF sayfa",a.sayfa],["Basılı sayfa",a.basiliSayfa],["Konum",a.konum]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));sd.append(x)}});
+  [["Kitap",a.kitap||(a.yol?"":q.kaynak)],["Kitaptaki yeri",a.yol||a.bolum||q.bolum.join(SEP)],["Kitap sayfası",a.basiliSayfa],["PDF sayfası",a.sayfa],["Konum",a.konum]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));sd.append(x)}});
   s.append(sd);frag.append(s);return frag;
 }
 function questionBody(q,order,chosen,reveal,onPick){
   const f=document.createDocumentFragment();
-  f.append(el("p","path",[q.kaynak,...q.bolum].join(SEP)));
+  f.append(el("p","path",[q.kaynak,...q.bolum].join(SEP)+(q.soruTipi?" · "+q.soruTipi:"")));
   if(q.vaka){const v=el("div","vaka");v.append(el("b","","VAKA"),document.createTextNode(q.vaka));f.append(v)}
   f.append(el("p","qt",q.soru));
   order.forEach((orig,i)=>{
