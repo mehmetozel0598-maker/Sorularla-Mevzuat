@@ -61,6 +61,8 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
 .node input[type=checkbox]{width:22px;height:22px;flex:none;accent-color:var(--acc)}
 .node .nm{flex:1;font-size:15px;line-height:1.35}
 .node .ct{font-size:12.5px;color:var(--mut);white-space:nowrap}
+.node .devam{flex:none;min-height:36px;padding:0 10px;border-radius:999px;border:1px solid var(--acc);background:var(--card);color:var(--acc);font-size:12.5px;font-weight:650;white-space:nowrap}
+#devamBtn{margin-bottom:8px}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
 .seg button{flex:1;border:0;border-radius:0;min-height:46px;font-size:14px;background:var(--card);padding:0 6px}
 .seg button.on{background:var(--acc);color:var(--accink);font-weight:650}
@@ -105,6 +107,18 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
 .item p{margin:0 0 3px;font-size:15px}
 .item small{color:var(--mut);font-size:13px;display:block}
 .item .acts{margin-top:8px}
+details.grp{border-top:1px solid var(--line)}
+details.grp:first-child{border-top:0}
+details.grp>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 0;cursor:pointer}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary .ok{flex:none;width:18px;color:var(--mut);font-size:13px;transition:transform .15s}
+details.grp[open]>summary .ok{transform:rotate(90deg)}
+details.grp>summary .nm{flex:1;font-size:15px;font-weight:600;line-height:1.35}
+details.grp>summary .ct{font-size:12.5px;color:var(--mut);white-space:nowrap}
+details.grp>summary button{flex:none}
+details.grp>.ic{padding-left:16px;border-left:2px solid var(--line);margin:0 0 8px 8px}
+details.grp>.ic>.item:first-child{border-top:1px solid var(--line);padding-top:10px}
+details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 .big{font-size:30px;font-weight:650;margin:2px 0}
 .filein{position:relative;display:inline-flex}
 .filein input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
@@ -149,6 +163,7 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
       <label class="chk"><input type="checkbox" id="karistir"> Soruları karışık sırayla getir</label>
       <label class="chk"><input type="checkbox" id="sikKar"> Şıkların yerini karıştır</label>
       <div class="msg info" id="selInfo" style="margin:8px 0 12px"></div>
+      <button class="pri wide hid" id="devamBtn"></button>
       <button class="pri wide" id="basla">Seçili bölümlerden başlat</button>
       <button class="wide" id="karma" style="margin-top:8px">Tüm bölümleri karıştır</button>
     </div>
@@ -238,11 +253,11 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
 
 <script>
 "use strict";
-const APP_VERSION="1.8",APP_DATE="14.11.2026";
+const APP_VERSION="2.0",APP_DATE="14.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
-let st={sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,park:{},klasorler:[],klasor:{},ayar:{tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false}};
+let st={sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,park:{},klasorler:[],klasor:{},acikListe:[],ayar:{tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false}};
 let view="calis",tree=null,idKey={},sonFiltre=false,deferredInstall=null;
 
 /* ---------- kalıcı depolama ---------- */
@@ -370,7 +385,17 @@ function toggleNode(node,on){
 }
 function selectedIds(){const s=new Set(st.sel);return st.sira.filter(id=>st.sorular[id]&&s.has(idKey[id]))}
 function someSel(n,s){if(s.has(n.key))return true;for(const c of n.cocuk.values())if(someSel(c,s))return true;return false}
+let yarimMap=new Map();
+function selParca(node){/* bu düğüm tek başına seçildiğinde oluşan seçim anahtarı */
+  const s=new Set();const w=n=>{s.add(n.key);for(const c of n.cocuk.values())w(c)};w(node);
+  (function fix(n){if(!n.cocuk.size)return s.has(n.key);let all=true;for(const c of n.cocuk.values())if(!fix(c))all=false;if(n!==tree){if(all)s.add(n.key);else s.delete(n.key)}return all})(tree);
+  return [...s].sort().join("|");
+}
+function yarimHesapla(){yarimMap=new Map();for(const o of yarimlar()){const a=o.anahtar||"";if(!a.startsWith("sec:"))continue;const k=a.slice(4,a.lastIndexOf("#"));if(!yarimMap.has(k))yarimMap.set(k,[]);yarimMap.get(k).push(o)}
+  for(const v of yarimMap.values())v.sort((x,y)=>(x.mod===st.ayar.mod?0:1)-(y.mod===st.ayar.mod?0:1))}
+function seciliYarim(){const k=selKey();return yarimlar().find(o=>o.anahtar===k)||null}
 function renderTree(){
+  yarimHesapla();
   const s=new Set(st.sel),acik=new Set(st.acik);
   const mk=n=>{const ul=el("ul","tree");
     for(const c of n.cocuk.values()){
@@ -380,7 +405,10 @@ function renderTree(){
       const lb=el("label"),cb=el("input");cb.type="checkbox";cb.checked=s.has(c.key);cb.indeterminate=!cb.checked&&someSel(c,s);
       cb.onchange=()=>{toggleNode(c,cb.checked);renderHome()};
       const coz=c.tum.filter(id=>st.prog[id]).length;
-      lb.append(cb,el("span","nm",c.ad),el("span","ct",coz+"/"+c.tum.length));row.append(tg,lb);li.append(row);
+      lb.append(cb,el("span","nm",c.ad),el("span","ct",coz+"/"+c.tum.length));row.append(tg,lb);
+      const ys=yarimMap.size?yarimMap.get(selParca(c)):null;
+      if(ys){const o=ys[0],d=btn("▶ "+Object.keys(o.ans).length+"/"+o.ids.length,"devam",()=>resumeSession(o));d.title="Kaldığın yerden devam et ("+modAd(o.mod)+" modu)";d.setAttribute("aria-label","Kaldığın yerden devam et: "+c.ad+", "+Object.keys(o.ans).length+" / "+o.ids.length+" cevaplandı");row.append(d)}
+      li.append(row);
       if(has&&open)li.append(mk(c));ul.append(li)}
     return ul};
   const t=$("tree");t.textContent="";const u=mk(tree);while(u.firstChild)t.append(u.firstChild);
@@ -399,6 +427,9 @@ function renderHome(){
   const ids=filterIds(selectedIds());
   $("selInfo").textContent=st.sel.length?ids.length+" soru bu seçime ve filtreye uyuyor.":"Bölüm seçmedin. Bir ya da birden fazla bölümü işaretle ya da tüm bölümleri karıştır.";
   $("basla").disabled=!ids.length;
+  const yo=st.sel.length?seciliYarim():null;show($("devamBtn"),!!yo);bastanArm=false;
+  if(yo){const n=Object.keys(yo.ans).length;$("devamBtn").textContent="▶ Kaldığın yerden devam et · "+n+" / "+yo.ids.length+" cevaplandı";$("basla").textContent="Baştan başla";$("basla").classList.remove("pri");$("basla").disabled=false}
+  else{$("basla").textContent="Seçili bölümlerden başlat";$("basla").classList.add("pri")}
 }
 function filterIds(ids){const f=st.ayar.filtre;if(f==="yeni")return ids.filter(id=>!st.prog[id]);if(f==="yanlis")return ids.filter(id=>st.prog[id]&&st.prog[id].son==="y");return ids}
 document.querySelectorAll("#segMod button").forEach(b=>b.onclick=()=>{st.ayar.mod=b.dataset.v;save();renderHome()});
@@ -408,7 +439,14 @@ $("karistir").onchange=()=>{st.ayar.karistir=$("karistir").checked;save()};
 $("sikKar").onchange=()=>{st.ayar.sikKaristir=$("sikKar").checked;save()};
 $("selAll").onclick=()=>{selectAll(true);renderHome()};
 $("selNone").onclick=()=>{selectAll(false);renderHome()};
-$("basla").onclick=()=>{const ids=filterIds(selectedIds());startSession(ids,selBaslik(),{karistir:st.ayar.karistir,anahtar:selKey()})};
+let bastanArm=false,bastanT=null;
+$("devamBtn").onclick=()=>{const o=seciliYarim();if(o)resumeSession(o)};
+$("basla").onclick=()=>{
+  const yo=seciliYarim();
+  if(yo){if(!bastanArm){bastanArm=true;$("basla").textContent="Emin misin? Kayıtlı ilerleme silinip yeni sorular gelir";clearTimeout(bastanT);bastanT=setTimeout(()=>{bastanArm=false;if(seciliYarim())$("basla").textContent="Baştan başla"},3500);return}
+    clearTimeout(bastanT);bastanArm=false;dropSession(yo)}
+  const ids=filterIds(selectedIds());if(!ids.length){save();renderHome();return}
+  startSession(ids,selBaslik(),{karistir:st.ayar.karistir,anahtar:selKey()})};
 $("karma").onclick=()=>{let ids=filterIds(st.sira.slice());if(!ids.length)ids=st.sira.slice();startSession(ids,"Tüm bölümler karışık",{karistir:true,anahtar:"karma#"+st.ayar.mod})};
 function yarimlar(){const a=[];if(st.oturum&&!st.oturum.bitti)a.push(st.oturum);for(const k in st.park){const o=st.park[k];if(o&&!o.bitti)a.push(o)}return a.sort((x,y)=>(y.son||y.basla||0)-(x.son||x.basla||0))}
 function modAd(m){return m==="deneme"?"Deneme":"Çalışma"}
@@ -560,18 +598,39 @@ $("rAna").onclick=()=>setView("calis");
 $("rYanlis").onclick=()=>{const o=st.oturum;const ids=o.ids.filter((id,i)=>st.sorular[id]&&o.ans[i]!==st.sorular[id].dogru);startSession(ids,"Yanlışların tekrarı",{karistir:true,adet:ids.length,mod:"calisma"})};
 
 /* ---------- favoriler ve hata defteri ---------- */
+function qYol(q){const k=st.klasor[q.kaynak];return (k?[k,q.kaynak]:[q.kaynak]).concat(q.bolum)}
 function listItems(box,ids,sub,remove,solveTitle){
   box.textContent="";
   if(!ids.length){box.append(el("small","",sub));return}
-  ids.slice(0,300).forEach(id=>{const q=st.sorular[id],it=el("div","item");
-    it.append(el("p","",q.soru.length>180?q.soru.slice(0,180)+"…":q.soru),el("small","",[q.kaynak,...q.bolum].join(SEP)+(st.hata[id]&&box.id==="hataList"?" · "+st.hata[id].y+" kez yanlış":"")));
-    const a=el("div","acts");a.append(btn("Çöz","sm",()=>startSession([id],solveTitle,{adet:1,mod:"calisma"})),btn("Listeden çıkar","sm",()=>{remove(id);save();updateTabs();render()}));it.append(a);box.append(it)});
-  if(ids.length>300)box.append(el("small","","İlk 300 soru gösteriliyor."));
+  const hataMi=box.id==="hataList",ack=new Set(st.acikListe||[]);
+  /* klasör > kaynak > bölüm > en alt başlık ağacı */
+  const kok={cocuk:new Map(),ids:[],tum:[]};
+  for(const id of ids){let n=kok;n.tum.push(id);let key=box.id;
+    for(const ad of qYol(st.sorular[id])){key+=SEP+ad;if(!n.cocuk.has(ad))n.cocuk.set(ad,{ad,key,cocuk:new Map(),ids:[],tum:[]});n=n.cocuk.get(ad);n.tum.push(id)}
+    n.ids.push(id)}
+  /* tek çocuklu ara düzeyleri birleştirme yok: yapı Çalış ekranındaki ağaçla aynı kalsın */
+  const soru=id=>{const q=st.sorular[id],it=el("div","item");
+    it.append(el("p","",q.soru.length>180?q.soru.slice(0,180)+"…":q.soru));
+    if(hataMi&&st.hata[id])it.append(el("small","",st.hata[id].y+" kez yanlış"));
+    const a=el("div","acts");a.append(btn("Çöz","sm",()=>startSession([id],solveTitle,{adet:1,mod:"calisma"})),btn("Listeden çıkar","sm",()=>{remove(id);save();updateTabs();render()}));it.append(a);return it};
+  const ciz=(n,hedef)=>{
+    for(const c of n.cocuk.values()){
+      const d=el("details","grp");d.open=ack.has(c.key);
+      d.ontoggle=()=>{const a=new Set(st.acikListe||[]);d.open?a.add(c.key):a.delete(c.key);st.acikListe=[...a];save()};
+      const sm=el("summary");sm.append(el("span","ok","▸"),el("span","nm",c.ad),el("span","ct",c.tum.length+" soru"));
+      const go=btn("Çöz","sm",e=>{e.preventDefault();e.stopPropagation();startSession(c.tum,(hataMi?"Hata defteri":"Favoriler")+" · "+c.ad,{karistir:true,adet:c.tum.length,mod:hataMi?"calisma":undefined})});
+      go.setAttribute("aria-label",c.ad+" başlığındaki "+c.tum.length+" soruyu çöz");sm.append(go);d.append(sm);
+      const ic=el("div","ic");
+      if(d.open){ciz(c,ic);c.ids.forEach(id=>ic.append(soru(id)))}
+      else d.addEventListener("toggle",function f(){if(d.open&&!ic.childNodes.length){ciz(c,ic);c.ids.forEach(id=>ic.append(soru(id)))}},{once:false});
+      d.append(ic);hedef.append(d)}
+  };
+  ciz(kok,box);kok.ids.forEach(id=>box.append(soru(id)));
 }
 function favIds(){return Object.keys(st.fav).filter(id=>st.sorular[id]).sort((a,b)=>st.fav[b]-st.fav[a])}
 function hataIds(){return Object.keys(st.hata).filter(id=>st.sorular[id]).sort((a,b)=>st.hata[b].t-st.hata[a].t)}
-function renderFav(){const ids=favIds();$("favSub").textContent=ids.length+" soru";$("favGo").disabled=!ids.length;listItems($("favList"),ids,"Soru çözerken yıldıza dokunduğun sorular burada toplanır.",id=>{delete st.fav[id]},"Favori soru")}
-function renderHata(){const ids=hataIds();$("hataSub").textContent=ids.length+" soru";$("hataGo").disabled=!ids.length;$("hataOto").checked=!!st.ayar.hataOto;listItems($("hataList"),ids,"Yanlış cevapladığın sorular kendiliğinden buraya düşer.",id=>{delete st.hata[id]},"Hata defteri sorusu")}
+function renderFav(){const ids=favIds();$("favSub").textContent=ids.length+" soru"+(ids.length?" · klasör ve başlıklara göre gruplu. Bir başlığın yanındaki Çöz yalnız o başlıktaki soruları açar.":"");$("favGo").disabled=!ids.length;listItems($("favList"),ids,"Soru çözerken yıldıza dokunduğun sorular burada toplanır.",id=>{delete st.fav[id]},"Favori soru")}
+function renderHata(){const ids=hataIds();$("hataSub").textContent=ids.length+" soru"+(ids.length?" · klasör ve başlıklara göre gruplu. Bir başlığın yanındaki Çöz yalnız o başlıktaki soruları açar.":"");$("hataGo").disabled=!ids.length;$("hataOto").checked=!!st.ayar.hataOto;listItems($("hataList"),ids,"Yanlış cevapladığın sorular kendiliğinden buraya düşer.",id=>{delete st.hata[id]},"Hata defteri sorusu")}
 $("favGo").onclick=()=>{const ids=favIds();startSession(ids,"Favoriler",{karistir:true,adet:ids.length})};
 $("hataGo").onclick=()=>startSession(hataIds(),"Hata defteri",{karistir:true,adet:Math.min(500,Math.max(1,parseInt($("hataAdet").value,10)||20)),mod:"calisma"});
 $("hataOto").onchange=()=>{st.ayar.hataOto=$("hataOto").checked;save()};
