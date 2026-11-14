@@ -1,5 +1,5 @@
 const PREFIX = "sbvmy7c41-soru-bankasi-";
-const CACHE = PREFIX + "v4";
+const CACHE = PREFIX + "v7";
 const FILES = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {

@@ -120,7 +120,7 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
   <p class="sub" id="homeSub">Çevrimdışı çalışır. Sorular ve ilerlemen bu cihazda saklanır.</p>
   <div class="msg info hid" id="instBar"><span id="instTxt"></span><div class="acts" style="margin-top:8px"><button class="sm pri" id="instBtn">Uygulamayı yükle</button><button class="sm" id="instNo">Şimdi değil</button></div></div>
   <p class="sub" id="surumAlt" style="margin:-8px 0 14px;font-size:12.5px"></p>
-  <div class="card hid" id="resumeCard"><h2>Yarım kalan oturum</h2><p class="sub" id="resumeTxt" style="margin-bottom:10px"></p><div class="acts"><button class="pri sm" id="resumeBtn">Devam et</button><button class="sm" id="resumeDrop">Bırak</button></div></div>
+  <div class="card hid" id="resumeCard"><h2 id="resumeH">Yarım kalan oturumlar</h2><p class="sub" style="margin-bottom:10px">Kaldığın yerden devam edebilirsin. Aynı bölümü yeniden seçip Başla dediğinde de bu oturum açılır.</p><div id="resumeList"></div></div>
   <div id="emptyHome" class="card hid">
     <h2>Havuz boş</h2>
     <p class="sub" style="margin-bottom:10px">Başlamak için bir soru dosyası (.json) yükle. Dosyaları Havuz sekmesinden de yönetebilirsin.</p>
@@ -199,14 +199,19 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
   <div class="card">
     <h2>Soru ekle</h2>
     <p class="sub" style="margin-bottom:10px">Birden fazla .json dosyası seçebilirsin. Yeni sorular mevcutların üzerine eklenir; aynı kimlikli soru güncellenir, ilerlemen korunur.</p>
-    <div class="acts"><span class="filein"><button class="pri" tabindex="-1">Soru dosyası yükle</button><input type="file" class="imp" multiple accept=".json,application/json" aria-label="Soru dosyası yükle"></span><button id="sablon">Örnek şablonu indir</button></div>
+    <label class="f" for="impKlasor">Hangi klasöre eklensin?</label><select id="impKlasor" style="margin-bottom:10px"></select>
+    <div class="acts"><span class="filein"><button class="pri" tabindex="-1">Soru dosyası yükle</button><input type="file" class="imp" data-klasor="1" multiple accept=".json,application/json" aria-label="Soru dosyası yükle"></span><button id="sablon">Örnek şablonu indir</button></div>
   </div>
   <div class="card">
     <h2>Yedek</h2>
     <p class="sub" style="margin-bottom:10px">Yedek dosyası bütün soruları, ilerlemeni, favorilerini ve hata defterini içerir. Başka cihazda "Yedekten geri yükle" ile açarsın.</p>
     <div class="acts"><button class="pri" id="yedek">Yedekle (dışa aktar)</button><span class="filein"><button tabindex="-1">Yedekten geri yükle</button><input type="file" class="imp" accept=".json,application/json" aria-label="Yedekten geri yükle"></span></div>
   </div>
-  <div class="card"><h2>Kaynaklar</h2><div id="kaynakList"></div></div>
+  <div class="card"><h2>Klasörler</h2>
+    <p class="sub" style="margin-bottom:10px">Soru dosyalarını kendi açtığın klasörlerde toplarsın. Örneğin "Gelir Vergisi Kanunu" klasörü aç, BDR bölüm dosyalarını içine koy. Çalış ekranında klasör en üst başlık olarak görünür.</p>
+    <div class="acts" style="flex-wrap:nowrap"><input type="text" id="yeniKlasor" placeholder="Klasör adı" maxlength="80" aria-label="Yeni klasör adı"><button class="pri" id="klasorEkle" style="white-space:nowrap">Klasör oluştur</button></div>
+    <div id="klasorList" style="margin-top:12px"></div></div>
+  <div class="card"><h2>Kaynaklar</h2><p class="sub" style="margin-bottom:10px">Her yüklediğin dosya bir kaynaktır. Klasörünü buradan seçip değiştirebilirsin.</p><div id="kaynakList"></div></div>
   <div class="card">
     <h2>Görünüm</h2>
     <div class="seg" id="segTema"><button data-v="sistem">Sistem</button><button data-v="acik">Açık</button><button data-v="koyu">Koyu</button></div>
@@ -233,11 +238,11 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
 
 <script>
 "use strict";
-const APP_VERSION="1.5",APP_DATE="13.11.2026";
+const APP_VERSION="1.8",APP_DATE="14.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
-let st={sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,ayar:{tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false}};
+let st={sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,park:{},klasorler:[],klasor:{},ayar:{tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false}};
 let view="calis",tree=null,idKey={},sonFiltre=false,deferredInstall=null;
 
 /* ---------- kalıcı depolama ---------- */
@@ -251,7 +256,7 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 async function loadState(){
   idb=await openDb();let s=await idbGet("state");
   if(!s){try{s=JSON.parse(localStorage.getItem("sbvmy7c41-soru-bankasi")||"null")}catch(e){s=null}}
-  if(s&&typeof s==="object"){st=Object.assign(st,s);st.ayar=Object.assign({tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false},s.ayar||{})}
+  if(s&&typeof s==="object"){st=Object.assign(st,s);if(!st.park||typeof st.park!=="object")st.park={};if(!Array.isArray(st.klasorler))st.klasorler=[];if(!st.klasor||typeof st.klasor!=="object")st.klasor={};st.ayar=Object.assign({tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false},s.ayar||{})}
   if(navigator.storage&&navigator.storage.persist){try{navigator.storage.persist()}catch(e){}}
 }
 
@@ -275,13 +280,13 @@ function adaptKomisyon(q,kaynak){
   const k=q.kaynak_atiflari&&typeof q.kaynak_atiflari==="object"?q.kaynak_atiflari:{};
   let sec=q.secenekler,dogru=q.dogru_cevap!==undefined?q.dogru_cevap:q.dogru;
   if(sec&&!Array.isArray(sec)&&typeof sec==="object"){const ks=Object.keys(sec).sort();sec=ks.map(x=>sec[x]);if(typeof dogru==="string"){const i=ks.indexOf(dogru.trim().toUpperCase());dogru=i>=0?i:dogru}}
-  let yol=str(k.kitap_yeri).split(/\s*[>›]\s*/).filter(Boolean);
+  let yer=str(k.kitap_yeri||k.dokuman_yeri);let yol=yer.split(/\s*[>›]\s*/).filter(Boolean);
   const ust=kaynak.split(":")[0].trim().toLocaleUpperCase("tr");
   if(yol.length&&yol[0].toLocaleUpperCase("tr").startsWith(ust))yol=yol.slice(1);
-  const ik=arr(k.ikincil_mevzuat_ve_idari_gorusler).filter(x=>!/^Kitapta ikincil mevzuat atfı yer almamaktadır/i.test(x));
+  const ik=arr(k.ikincil_mevzuat_ve_idari_gorusler).filter(x=>!/^(Kitapta|Dokümanda) ikincil mevzuat atfı yer almamaktadır/i.test(x));
   return {id:q.id,kaynak,bolum:yol,tur:q.vaka?"vaka":"test",vaka:q.vaka,soru:q.soru_metni!==undefined?q.soru_metni:q.soru,secenekler:sec,dogru,
     cozum:q.gerekceli_aciklama!==undefined?q.gerekceli_aciklama:q.cozum,zorluk:q.zorluk_derecesi||q.zorluk,soruTipi:q.soru_tipi,
-    atif:{liste:maddeListesi(k.ilgili_mevzuat),kitap:str(q.kitap),yol:str(k.kitap_yeri),bolum:"",basiliSayfa:k.sayfa,kanun:arr(k.ilgili_mevzuat).join(" · "),teblig:ik.join(" · "),diger:"",mevzuatOzeti:""}};
+    atif:{liste:maddeListesi(k.ilgili_mevzuat),kitap:str(q.kitap),yol:yer,bolum:"",basiliSayfa:k.sayfa!==undefined?k.sayfa:k.slayt_no,kanun:arr(k.ilgili_mevzuat).join(" · "),teblig:ik.join(" · "),diger:"",mevzuatOzeti:""}};
 }
 function normalize(q,kaynak){
   if(!q||typeof q!=="object")return null;
@@ -297,29 +302,33 @@ function normalize(q,kaynak){
   const k=str(q.kaynak)||kaynak||"Genel";
   return {soruTipi:str(q.soruTipi),id:str(q.id).replace(/\s+/g,"-")||"q"+hash(k+"|"+soru),kaynak:k,bolum,tur:q.tur==="vaka"||str(q.vaka)?"vaka":"test",vaka:str(q.vaka),soru,secenekler:sec,dogru:d,cozum:str(q.cozum!==undefined?q.cozum:q.aciklama),atif,zorluk:str(q.zorluk)};
 }
-function importObj(obj,fileName){
+function importObj(obj,fileName,klasor){
   const r={yeni:0,guncel:0,hatali:0,yedek:false};
   let list=null,kaynak=fileName.replace(/\.json$/i,"");
   if(Array.isArray(obj))list=obj;
-  else if(obj&&Array.isArray(obj.sorular)){list=obj.sorular;if(obj.kaynak)kaynak=str(typeof obj.kaynak==="object"?obj.kaynak.ad:obj.kaynak)||kaynak;else if(obj.bolum_adi)kaynak=str(obj.bolum_adi)||kaynak}
+  else if(obj&&Array.isArray(obj.sorular)){list=obj.sorular;if(obj.kaynak)kaynak=str(typeof obj.kaynak==="object"?obj.kaynak.ad:obj.kaynak)||kaynak;else if(obj.bolum_adi||obj.kanun_adi)kaynak=str(obj.bolum_adi||obj.kanun_adi)||kaynak}
   if(!list)return null;
+  const yedekMi=obj&&obj.format==="soru-bankasi-yedek";
   for(const raw of list){
     const q=normalize(raw,kaynak);if(!q){r.hatali++;continue}
     if(st.sorular[q.id])r.guncel++;else{r.yeni++;st.sira.push(q.id)}
     st.sorular[q.id]=q;
+    if(klasor&&!yedekMi)st.klasor[q.kaynak]=klasor;
   }
   if(obj&&obj.format==="soru-bankasi-yedek"){
     r.yedek=true;
     for(const [id,p] of Object.entries(obj.ilerleme||{})){if(st.sorular[id]&&p&&(!st.prog[id]||(p.n||0)>(st.prog[id].n||0)))st.prog[id]={n:+p.n||0,d:+p.d||0,y:+p.y||0,son:p.son==="d"?"d":"y",t:+p.t||0}}
     for(const [id,t] of Object.entries(obj.favoriler||{})){if(st.sorular[id]&&!st.fav[id])st.fav[id]=+t||Date.now()}
+    for(const k of (Array.isArray(obj.klasorler)?obj.klasorler:[]))klasorEkle(k);
+    for(const [k,v] of Object.entries(obj.klasorKaynak||{}))if(str(v)&&!st.klasor[k]){klasorEkle(v);st.klasor[k]=str(v)}
     for(const [id,h] of Object.entries(obj.hataDefteri||{})){if(st.sorular[id]&&h&&!st.hata[id])st.hata[id]={y:+h.y||1,t:+h.t||Date.now()}}
   }
   return r;
 }
-async function importFiles(files){
+async function importFiles(files,klasor){
   let yeni=0,guncel=0,hatali=0,bad=[],yedek=false;
   for(const f of files){
-    try{const r=importObj(JSON.parse((await f.text()).replace(/^﻿/,"")),f.name);if(!r){bad.push(f.name);continue}yeni+=r.yeni;guncel+=r.guncel;hatali+=r.hatali;yedek=yedek||r.yedek}
+    try{const r=importObj(JSON.parse((await f.text()).replace(/^﻿/,"")),f.name,klasor);if(!r){bad.push(f.name);continue}yeni+=r.yeni;guncel+=r.guncel;hatali+=r.hatali;yedek=yedek||r.yedek}
     catch(e){bad.push(f.name)}
   }
   buildTree();if(!st.sel.length)selectAll(true);await flush();
@@ -330,8 +339,8 @@ async function importFiles(files){
   if(view==="calis"&&(yeni||guncel))$("homeSub").textContent=t;
   render();
 }
-document.querySelectorAll("input.imp").forEach(i=>i.onchange=e=>{const fs=[...e.target.files];e.target.value="";if(fs.length)importFiles(fs)});
-function backupData(){return {format:"soru-bankasi-yedek",surum:1,tarih:new Date().toISOString(),sorular:st.sira.filter(id=>st.sorular[id]).map(id=>st.sorular[id]),ilerleme:st.prog,favoriler:st.fav,hataDefteri:st.hata}}
+document.querySelectorAll("input.imp").forEach(i=>i.onchange=e=>{const fs=[...e.target.files];e.target.value="";if(fs.length)importFiles(fs,i.dataset.klasor?$("impKlasor").value:"")});
+function backupData(){return {format:"soru-bankasi-yedek",surum:1,tarih:new Date().toISOString(),sorular:st.sira.filter(id=>st.sorular[id]).map(id=>st.sorular[id]),ilerleme:st.prog,favoriler:st.fav,hataDefteri:st.hata,klasorler:st.klasorler,klasorKaynak:st.klasor}}
 const SABLON={format:"soru-bankasi",surum:1,kaynak:{ad:"Örnek Kaynak Kitap 2026"},sorular:[
  {id:"ornek-1-1-001",bolum:["Bölüm 1: Zamanaşımı","1.1 Tarh Zamanaşımı"],tur:"test",soru:"Vergi Usul Kanunu'na göre tarh zamanaşımı süresi kaç yıldır?",secenekler:["3 yıl","5 yıl","7 yıl","10 yıl","15 yıl"],dogru:1,cozum:"Vergi alacağının doğduğu takvim yılını takip eden yılın başından başlayarak beş yıl içinde tarh ve mükellefe tebliğ edilmeyen vergiler zamanaşımına uğrar.",atif:{kitap:"Örnek Kaynak Kitap 2026",bolum:"1.1 Tarh Zamanaşımı",sayfa:12,basiliSayfa:"4",konum:"Sayfanın ilk paragrafı",kanun:"VUK md. 114",teblig:"",diger:"",mevzuatOzeti:"Zamanaşımı süresi, vergi alacağının doğduğu yılı takip eden takvim yılının başından itibaren beş yıldır."},zorluk:"kolay"},
  {id:"ornek-1-2-001",bolum:["Bölüm 1: Zamanaşımı","1.2 Uygulama","1.2.1 Süre Hesabı"],tur:"vaka",vaka:"Bir mükellefin 2020 takvim yılına ilişkin vergi alacağı 2020 yılında doğmuştur. İdare bu döneme ilişkin tarhiyatı yapmayı planlamaktadır.",soru:"Bu alacak için tarh zamanaşımı hangi tarihte dolar?",secenekler:["31.12.2023","31.12.2024","31.12.2025","31.12.2026","31.12.2030"],dogru:2,cozum:"Süre 01.01.2021'de başlar ve beş yıl sürer: 2021, 2022, 2023, 2024, 2025. Zamanaşımı 31.12.2025 günü sonunda dolar.",atif:{kitap:"Örnek Kaynak Kitap 2026",bolum:"1.2.1 Süre Hesabı",sayfa:15,basiliSayfa:"7",konum:"Örnek 2",kanun:"VUK md. 114",teblig:"",diger:"",mevzuatOzeti:"Beş yıllık süre, alacağın doğduğu yılı izleyen yılın ilk gününden başlar."},zorluk:"orta"}
@@ -341,7 +350,7 @@ const SABLON={format:"soru-bankasi",surum:1,kaynak:{ad:"Örnek Kaynak Kitap 2026
 function buildTree(){
   tree={key:"",ad:"",cocuk:new Map(),ids:[],tum:[]};
   for(const id of st.sira){const q=st.sorular[id];if(!q)continue;let n=tree;n.tum.push(id);let key="";
-    for(const ad of [q.kaynak,...q.bolum]){key=key?key+SEP+ad:ad;if(!n.cocuk.has(ad))n.cocuk.set(ad,{key,ad,cocuk:new Map(),ids:[],tum:[]});n=n.cocuk.get(ad);n.tum.push(id)}
+    for(const ad of (st.klasor[q.kaynak]?[st.klasor[q.kaynak],q.kaynak]:[q.kaynak]).concat(q.bolum)){key=key?key+SEP+ad:ad;if(!n.cocuk.has(ad))n.cocuk.set(ad,{key,ad,cocuk:new Map(),ids:[],tum:[]});n=n.cocuk.get(ad);n.tum.push(id)}
     n.ids.push(id)}
   idKey={};
   (function split(n){for(const c of n.cocuk.values())split(c);
@@ -380,8 +389,7 @@ function renderTree(){
 /* ---------- ana ekran ---------- */
 function renderHome(){
   const total=st.sira.length;show($("emptyHome"),!total);show($("homeBody"),total>0);
-  const o=st.oturum;show($("resumeCard"),!!(o&&!o.bitti));
-  if(o&&!o.bitti)$("resumeTxt").textContent=o.baslik+" · "+Object.keys(o.ans).length+" / "+o.ids.length+" cevaplandı";
+  renderResume();
   if(!total)return;
   let coz=0,d=0,n=0;for(const id of st.sira){const p=st.prog[id];if(p){coz++;d+=p.d;n+=p.n}}
   $("sTop").textContent=total;$("sCoz").textContent=coz;$("sBas").textContent=pct(d,n);$("sHata").textContent=Object.keys(st.hata).filter(id=>st.sorular[id]).length;
@@ -400,18 +408,48 @@ $("karistir").onchange=()=>{st.ayar.karistir=$("karistir").checked;save()};
 $("sikKar").onchange=()=>{st.ayar.sikKaristir=$("sikKar").checked;save()};
 $("selAll").onclick=()=>{selectAll(true);renderHome()};
 $("selNone").onclick=()=>{selectAll(false);renderHome()};
-$("basla").onclick=()=>{const ids=filterIds(selectedIds());startSession(ids,"Seçili bölümler ("+ids.length+" soruluk havuz)",{karistir:st.ayar.karistir})};
-$("karma").onclick=()=>{let ids=filterIds(st.sira.slice());if(!ids.length)ids=st.sira.slice();startSession(ids,"Tüm bölümler karışık",{karistir:true})};
-$("resumeBtn").onclick=()=>openSession();
-$("resumeDrop").onclick=()=>{st.oturum=null;save();renderHome()};
+$("basla").onclick=()=>{const ids=filterIds(selectedIds());startSession(ids,selBaslik(),{karistir:st.ayar.karistir,anahtar:selKey()})};
+$("karma").onclick=()=>{let ids=filterIds(st.sira.slice());if(!ids.length)ids=st.sira.slice();startSession(ids,"Tüm bölümler karışık",{karistir:true,anahtar:"karma#"+st.ayar.mod})};
+function yarimlar(){const a=[];if(st.oturum&&!st.oturum.bitti)a.push(st.oturum);for(const k in st.park){const o=st.park[k];if(o&&!o.bitti)a.push(o)}return a.sort((x,y)=>(y.son||y.basla||0)-(x.son||x.basla||0))}
+function modAd(m){return m==="deneme"?"Deneme":"Çalışma"}
+function renderResume(){
+  const list=yarimlar(),box=$("resumeList");show($("resumeCard"),list.length>0);box.textContent="";
+  $("resumeH").textContent=list.length>1?"Yarım kalan oturumlar ("+list.length+")":"Yarım kalan oturum";
+  for(const o of list){
+    const it=el("div","item");const n=Object.keys(o.ans).length;
+    it.append(el("b","",o.baslik),el("p","sub",modAd(o.mod)+" modu · "+n+" / "+o.ids.length+" cevaplandı · "+(o.cur+1)+". soruda kaldın"));
+    const a=el("div","acts");a.append(btn("Devam et","pri sm",()=>resumeSession(o)),btn("Bırak","sm",()=>{dropSession(o);save();renderHome()}));it.append(a);box.append(it)}
+}
+function parkCurrent(){const c=st.oturum;if(c&&!c.bitti&&Object.keys(c.ans).length){c.son=Date.now();st.park[c.anahtar||("o"+c.basla)]=c}st.oturum=null}
+function resumeSession(o){
+  if(st.oturum===o){openSession();return}
+  for(const k in st.park)if(st.park[k]===o)delete st.park[k];
+  parkCurrent();st.oturum=o;save();openSession();
+}
+function dropSession(o){if(st.oturum===o)st.oturum=null;for(const k in st.park)if(st.park[k]===o)delete st.park[k]}
+function temizleOturum(){
+  const fix=o=>{if(!o)return null;const keep=[],ans={};let cur=0;o.ids.forEach((id,i)=>{if(st.sorular[id]){if(i===o.cur)cur=keep.length;if(o.ans[i]!==undefined)ans[keep.length]=o.ans[i];keep.push(id)}});if(!keep.length)return null;o.ids=keep;o.ans=ans;o.cur=Math.min(cur,keep.length-1);return o};
+  st.oturum=fix(st.oturum);for(const k in st.park){const o=fix(st.park[k]);if(o)st.park[k]=o;else delete st.park[k]}
+}
+function selBaslik(){
+  const ps=st.sel.map(k=>k.split(SEP));if(!ps.length)return "Seçili bölümler";
+  let c=ps[0].slice();for(const p of ps)while(c.length&&c.some((x,i)=>p[i]!==x))c.pop();
+  if(ps.length===1){const p=ps[0];return (p[p.length-1]==="Bölüm geneli"&&p.length>1?p[p.length-2]+" · Bölüm geneli":p.slice(-2).join(SEP))}
+  return (c.length?c[c.length-1]:"Birden fazla kaynak")+" · "+ps.length+" alt bölüm";
+}
+function selKey(){return "sec:"+st.sel.slice().sort().join("|")+"#"+st.ayar.mod}
 
 /* ---------- oturum ---------- */
 function startSession(ids,baslik,o){
-  o=o||{};ids=ids.filter(id=>st.sorular[id]);if(!ids.length)return;
+  o=o||{};
+  if(o.anahtar){const eski=(st.oturum&&st.oturum.anahtar===o.anahtar&&!st.oturum.bitti)?st.oturum:st.park[o.anahtar];
+    if(eski&&!eski.bitti&&eski.ids.some(id=>st.sorular[id])){resumeSession(eski);return}}
+  ids=ids.filter(id=>st.sorular[id]);if(!ids.length)return;
+  parkCurrent();
   if(o.karistir)ids=shuffle(ids);
   ids=ids.slice(0,o.adet||st.ayar.adet);
   const sira={};for(const id of ids){const k=st.sorular[id].secenekler.map((_,i)=>i);sira[id]=st.ayar.sikKaristir?shuffle(k):k}
-  st.oturum={baslik,mod:o.mod||st.ayar.mod,kaynak:o.kaynak||"",ids,sira,ans:{},cur:0,bitti:false,basla:Date.now()};
+  st.oturum={baslik,anahtar:o.anahtar||"",mod:o.mod||st.ayar.mod,kaynak:o.kaynak||"",ids,sira,ans:{},cur:0,bitti:false,basla:Date.now()};
   save();openSession();
 }
 function openSession(){setView("oturum")}
@@ -438,8 +476,13 @@ function atifCard(q){
     frag.append(b);
   }
   const s=el("div","box src");s.append(el("h3","","Kaynaktaki yeri"));const sd=el("div","badges");
-  [["Kitap",a.kitap||(a.yol?"":q.kaynak)],["Kitaptaki yeri",a.yol||a.bolum||q.bolum.join(SEP)],["Kitap sayfası",a.basiliSayfa],["PDF sayfası",a.sayfa],["Konum",a.konum]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));sd.append(x)}});
+  [["Kitap",a.kitap||(a.yol?"":q.kaynak)],[/^\d+\. BÖLÜM:/.test(a.yol)?"Dokümandaki yeri":"Kitaptaki yeri",a.yol||a.bolum||q.bolum.join(SEP)],[/^slayt/i.test(a.basiliSayfa)?"Slayt":"Kitap sayfası",/^slayt/i.test(a.basiliSayfa)?a.basiliSayfa.replace(/^slayt\s*/i,""):a.basiliSayfa],["PDF sayfası",a.sayfa],["Konum",a.konum]].forEach(([k,v])=>{if(v){const x=el("div","badge");x.append(el("small","",k),document.createTextNode(v));sd.append(x)}});
   s.append(sd);frag.append(s);return frag;
+}
+function harfCevir(t,order){
+  t=String(t);if(order.every((o,i)=>o===i))return t;
+  const n=order.length,ls=L.slice(0,n),re=new RegExp("(^|[^\\p{L}\\p{N}])(["+ls+"])(?=$|[^\\p{L}\\p{N}.])","gu");
+  return t.replace(re,(m,on,h,off,str)=>{const nx=str.charAt(off+m.length);if(on==="("&&nx===")")return m;const i=L.indexOf(h);return on+L[order.indexOf(i)]});
 }
 function questionBody(q,order,chosen,reveal,onPick){
   const f=document.createDocumentFragment();
@@ -455,7 +498,7 @@ function questionBody(q,order,chosen,reveal,onPick){
   if(reveal){
     const di=order.indexOf(q.dogru),ci=chosen===undefined||chosen===null?-1:order.indexOf(chosen);
     const c=el("div","box");c.append(el("h3","","Çözüm"));
-    c.append(el("p","","Doğru cevap: "+L[di]+(ci>=0&&ci!==di?" · Senin cevabın: "+L[ci]:ci<0?" · Boş bırakıldı":"")+(q.cozum?"\n\n"+q.cozum:"")));
+    c.append(el("p","","Doğru cevap: "+L[di]+(ci>=0&&ci!==di?" · Senin cevabın: "+L[ci]:ci<0?" · Boş bırakıldı":"")+(q.cozum?"\n\n"+harfCevir(q.cozum,order):"")));
     f.append(c,atifCard(q));
   }
   return f;
@@ -491,7 +534,7 @@ $("kapat").onclick=()=>setView("calis");
 function finishSession(){
   const o=st.oturum;if(!o||o.bitti){setView("sonuc");return}
   if(o.mod==="deneme"){o.ids.forEach((id,i)=>{const q=st.sorular[id];if(q&&o.ans[i]!==undefined)applyAnswer(id,o.ans[i]===q.dogru)})}
-  o.bitti=true;o.bitis=Date.now();save();sonFiltre=false;setView("sonuc");
+  o.bitti=true;o.bitis=Date.now();if(o.anahtar)delete st.park[o.anahtar];save();sonFiltre=false;setView("sonuc");
 }
 document.addEventListener("keydown",e=>{
   if(view!=="oturum"||!st.oturum||e.ctrlKey||e.metaKey||e.altKey)return;
@@ -534,11 +577,47 @@ $("hataGo").onclick=()=>startSession(hataIds(),"Hata defteri",{karistir:true,ade
 $("hataOto").onchange=()=>{st.ayar.hataOto=$("hataOto").checked;save()};
 
 /* ---------- havuz ---------- */
+function kaynaklar(){const m=new Map();for(const id of st.sira){const q=st.sorular[id];if(!q)continue;if(!m.has(q.kaynak))m.set(q.kaynak,[]);m.get(q.kaynak).push(id)}return m}
+function klasorEkle(ad){ad=str(ad).replace(/\s+/g," ").trim().replace(/›/g,">");if(!ad)return "";if(!st.klasorler.includes(ad))st.klasorler.push(ad);return ad}
+function yolDegis(eskiP,yeniP){
+  const f=k=>k===eskiP?yeniP:k.startsWith(eskiP+SEP)?yeniP+k.slice(eskiP.length):k;
+  st.sel=[...new Set(st.sel.map(f))];st.acik=[...new Set(st.acik.map(f))];
+  const fa=a=>{if(!a||!a.startsWith("sec:"))return a;const i=a.lastIndexOf("#");return "sec:"+a.slice(4,i).split("|").map(f).sort().join("|")+a.slice(i)};
+  if(st.oturum)st.oturum.anahtar=fa(st.oturum.anahtar);
+  const p={};for(const k in st.park){const o=st.park[k];o.anahtar=fa(o.anahtar||k);p[o.anahtar||k]=o}st.park=p;
+}
+function kaynakTasi(ad,klasor){const e=st.klasor[ad]||"";if(e===klasor)return;
+  yolDegis((e?e+SEP:"")+ad,(klasor?klasor+SEP:"")+ad);if(klasor)st.klasor[ad]=klasor;else delete st.klasor[ad];buildTree();save();renderHavuz()}
+function klasorAdDegis(eski,yeni){yeni=str(yeni).replace(/\s+/g," ").trim().replace(/›/g,">");if(!yeni)return "Klasör adı boş olamaz.";if(yeni===eski)return "";
+  if(st.klasorler.includes(yeni))return "“"+yeni+"” adında bir klasör zaten var.";
+  st.klasorler=st.klasorler.map(k=>k===eski?yeni:k);for(const a in st.klasor)if(st.klasor[a]===eski)st.klasor[a]=yeni;
+  yolDegis(eski,yeni);buildTree();save();return ""}
+function klasorSil(k){for(const a of Object.keys(st.klasor))if(st.klasor[a]===k)kaynakTasi(a,"");st.klasorler=st.klasorler.filter(x=>x!==k);buildTree();save()}
+$("klasorEkle").onclick=()=>{const v=$("yeniKlasor").value;const ad=str(v).replace(/\s+/g," ").trim();if(!ad){havuzMsg("Klasör adını yaz.","err");return}
+  if(st.klasorler.includes(ad.replace(/›/g,">"))){havuzMsg("“"+ad+"” adında bir klasör zaten var.","err");return}
+  const k=klasorEkle(ad);$("yeniKlasor").value="";save();havuzMsg("“"+k+"” klasörü oluşturuldu. Kaynakların altındaki listeden dosyaları bu klasöre taşıyabilir ya da yüklerken seçebilirsin.","ok");renderHavuz();$("impKlasor").value=k};
+$("yeniKlasor").onkeydown=e=>{if(e.key==="Enter")$("klasorEkle").click()};
 function renderHavuz(){
   const box=$("kaynakList");box.textContent="";
-  if(!tree.cocuk.size)box.append(el("small","","Henüz soru yüklenmedi."));
-  for(const k of tree.cocuk.values()){const it=el("div","item");it.append(el("p","",k.ad),el("small","",k.tum.length+" soru · "+k.tum.filter(id=>st.prog[id]).length+" çözüldü"));
-    const a=el("div","acts");a.append(confirmBtn("Bu kaynağı sil","sm danger",()=>{for(const id of k.tum){delete st.sorular[id];delete st.prog[id];delete st.fav[id];delete st.hata[id]}buildTree();st.oturum=null;flush();havuzMsg("“"+k.ad+"” silindi.","ok");updateTabs();renderHavuz()}));it.append(a);box.append(it)}
+  const kay=kaynaklar();
+  if(!kay.size)box.append(el("small","","Henüz soru yüklenmedi."));
+  for(const [ad,ids] of kay){const it=el("div","item");it.append(el("p","",ad),el("small","",ids.length+" soru · "+ids.filter(id=>st.prog[id]).length+" çözüldü"));
+    const sel=el("select");sel.setAttribute("aria-label","Klasör: "+ad);sel.style.marginTop="8px";
+    sel.append(new Option("Klasörsüz",""));for(const k of st.klasorler)sel.append(new Option("Klasör: "+k,k));sel.value=st.klasor[ad]||"";
+    sel.onchange=()=>{kaynakTasi(ad,sel.value);havuzMsg(sel.value?"“"+ad+"” → “"+sel.value+"” klasörüne taşındı.":"“"+ad+"” klasörden çıkarıldı.","ok")};
+    it.append(sel);
+    const a=el("div","acts");a.append(confirmBtn("Bu kaynağı sil","sm danger",()=>{for(const id of ids){delete st.sorular[id];delete st.prog[id];delete st.fav[id];delete st.hata[id]}delete st.klasor[ad];buildTree();temizleOturum();flush();havuzMsg("“"+ad+"” silindi.","ok");updateTabs();renderHavuz()}));it.append(a);box.append(it)}
+  const kb=$("klasorList");kb.textContent="";
+  if(!st.klasorler.length)kb.append(el("small","","Henüz klasör yok."));
+  for(const k of st.klasorler){const it=el("div","item");const ic=[...kay].filter(([a])=>st.klasor[a]===k);
+    it.append(el("p","","📁 "+k),el("small","",ic.length?ic.length+" kaynak · "+ic.reduce((t,[,x])=>t+x.length,0)+" soru":"Boş klasör"));
+    const a=el("div","acts");
+    a.append(btn("Adını değiştir","sm",()=>{a.textContent="";const inp=el("input");inp.type="text";inp.value=k;inp.maxLength=80;inp.setAttribute("aria-label","Yeni klasör adı");
+      const ok=btn("Kaydet","sm pri",()=>{const r=klasorAdDegis(k,inp.value);if(r)havuzMsg(r,"err");renderHavuz()});inp.onkeydown=e=>{if(e.key==="Enter")ok.click()};
+      a.append(inp,ok,btn("Vazgeç","sm",renderHavuz));inp.focus()}));
+    a.append(confirmBtn("Klasörü sil","sm danger",()=>{klasorSil(k);havuzMsg("“"+k+"” klasörü silindi. İçindeki sorular duruyor, klasörsüz kaldı.","ok");renderHavuz()}));
+    it.append(a);kb.append(it)}
+  const ik=$("impKlasor"),eski=ik.value;ik.textContent="";ik.append(new Option("Klasörsüz",""));for(const k of st.klasorler)ik.append(new Option(k,k));ik.value=st.klasorler.includes(eski)?eski:"";
   document.querySelectorAll("#segTema button").forEach(b=>b.classList.toggle("on",b.dataset.v===st.ayar.tema));
   const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   $("pwaDurum").textContent=standalone?"Uygulama olarak kurulu. İnternet olmadan da açılır.":("serviceWorker" in navigator?"Tarayıcıda açık. Ana ekrana eklersen uygulama gibi tam ekran ve çevrimdışı çalışır.":"Bu tarayıcı çevrimdışı kurulumu desteklemiyor.");
@@ -547,8 +626,8 @@ function renderHavuz(){
 document.querySelectorAll("#segTema button").forEach(b=>b.onclick=()=>{st.ayar.tema=b.dataset.v;applyTema();save();renderHavuz()});
 $("yedek").onclick=()=>{if(!st.sira.length){havuzMsg("Yedeklenecek soru yok.","info");return}download("soru-bankasi-yedek-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(backupData()));havuzMsg("Yedek dosyası indirildi: "+st.sira.length+" soru ve ilerlemen içinde.","ok")};
 $("sablon").onclick=()=>download("ornek-soru-sablonu.json",JSON.stringify(SABLON,null,2));
-$("sifIlerleme").replaceWith(confirmBtn("İlerlemeyi sıfırla","danger",()=>{st.prog={};st.hata={};st.oturum=null;flush();havuzMsg("İlerleme ve hata defteri sıfırlandı. Sorular ve favoriler duruyor.","ok");updateTabs();renderHavuz()}));
-$("sifHepsi").replaceWith(confirmBtn("Tüm verileri sil","danger",()=>{st.sorular={};st.sira=[];st.prog={};st.fav={};st.hata={};st.sel=[];st.acik=[];st.oturum=null;buildTree();flush();havuzMsg("Bütün sorular ve ilerleme silindi.","ok");updateTabs();renderHavuz()}));
+$("sifIlerleme").replaceWith(confirmBtn("İlerlemeyi sıfırla","danger",()=>{st.prog={};st.hata={};st.oturum=null;st.park={};flush();havuzMsg("İlerleme ve hata defteri sıfırlandı. Sorular ve favoriler duruyor.","ok");updateTabs();renderHavuz()}));
+$("sifHepsi").replaceWith(confirmBtn("Tüm verileri sil","danger",()=>{st.sorular={};st.sira=[];st.prog={};st.fav={};st.hata={};st.sel=[];st.acik=[];st.oturum=null;st.park={};st.klasor={};st.klasorler=[];buildTree();flush();havuzMsg("Bütün sorular ve ilerleme silindi.","ok");updateTabs();renderHavuz()}));
 $("guncelle").onclick=async()=>{if(!("serviceWorker" in navigator)){havuzMsg("Bu tarayıcıda güncelleme denetimi yok.","info");return}try{const r=await navigator.serviceWorker.getRegistration();if(r){await r.update();havuzMsg("Denetlendi. Yeni sürüm varsa uygulamayı kapatıp açtığında gelir.","ok")}else havuzMsg("Çevrimdışı kurulum henüz etkin değil.","info")}catch(e){havuzMsg("Güncelleme denetlenemedi; internet bağlantını kontrol et.","err")}};
 
 /* ---------- gezinme ---------- */
