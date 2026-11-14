@@ -107,6 +107,10 @@ mark{background:#ffd43b;color:#1b1a18;font-weight:600;border-radius:3px;padding:
 .item p{margin:0 0 3px;font-size:15px}
 .item small{color:var(--mut);font-size:13px;display:block}
 .item .acts{margin-top:8px}
+.rtog{display:flex;align-items:center;gap:8px;width:100%;min-height:44px;padding:0;border:0;background:none;text-align:left;cursor:pointer}
+.rtog h2{flex:1;margin:0}.rtog small{color:var(--mut);font-size:13px}
+.rtog .ok{width:18px;color:var(--mut);font-size:13px;transition:transform .15s}
+.rtog[aria-expanded=true] .ok{transform:rotate(90deg)}
 details.grp{border-top:1px solid var(--line)}
 details.grp:first-child{border-top:0}
 details.grp>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 0;cursor:pointer}
@@ -134,7 +138,7 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
   <p class="sub" id="homeSub">Çevrimdışı çalışır. Sorular ve ilerlemen bu cihazda saklanır.</p>
   <div class="msg info hid" id="instBar"><span id="instTxt"></span><div class="acts" style="margin-top:8px"><button class="sm pri" id="instBtn">Uygulamayı yükle</button><button class="sm" id="instNo">Şimdi değil</button></div></div>
   <p class="sub" id="surumAlt" style="margin:-8px 0 14px;font-size:12.5px"></p>
-  <div class="card hid" id="resumeCard"><h2 id="resumeH">Yarım kalan oturumlar</h2><p class="sub" style="margin-bottom:10px">Kaldığın yerden devam edebilirsin. Aynı bölümü yeniden seçip Başla dediğinde de bu oturum açılır.</p><div id="resumeList"></div></div>
+  <div class="card hid" id="resumeCard"><button class="rtog" id="resumeTog" aria-expanded="true" aria-controls="resumeBody"><span class="ok">▸</span><h2 id="resumeH">Yarım kalan oturumlar</h2><small id="resumeHint">Gizle</small></button><div id="resumeBody"><p class="sub" style="margin:6px 0 10px">Kaldığın yerden devam edebilirsin. Bölümler listesindeki ▶ düğmesiyle de aynı oturumu açarsın.</p><div id="resumeList"></div></div></div>
   <div id="emptyHome" class="card hid">
     <h2>Havuz boş</h2>
     <p class="sub" style="margin-bottom:10px">Başlamak için bir soru dosyası (.json) yükle. Dosyaları Havuz sekmesinden de yönetebilirsin.</p>
@@ -253,7 +257,7 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 
 <script>
 "use strict";
-const APP_VERSION="2.0",APP_DATE="14.11.2026";
+const APP_VERSION="2.1",APP_DATE="14.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
@@ -452,12 +456,14 @@ function yarimlar(){const a=[];if(st.oturum&&!st.oturum.bitti)a.push(st.oturum);
 function modAd(m){return m==="deneme"?"Deneme":"Çalışma"}
 function renderResume(){
   const list=yarimlar(),box=$("resumeList");show($("resumeCard"),list.length>0);box.textContent="";
-  $("resumeH").textContent=list.length>1?"Yarım kalan oturumlar ("+list.length+")":"Yarım kalan oturum";
+  $("resumeH").textContent=list.length>1?"Yarım kalan oturumlar ("+list.length+")":"Yarım kalan oturum (1)";
+  const acik=st.ayar.resumeAcik!==false;show($("resumeBody"),acik);$("resumeTog").setAttribute("aria-expanded",acik);$("resumeHint").textContent=acik?"Gizle":"Göster";
   for(const o of list){
     const it=el("div","item");const n=Object.keys(o.ans).length;
     it.append(el("b","",o.baslik),el("p","sub",modAd(o.mod)+" modu · "+n+" / "+o.ids.length+" cevaplandı · "+(o.cur+1)+". soruda kaldın"));
     const a=el("div","acts");a.append(btn("Devam et","pri sm",()=>resumeSession(o)),btn("Bırak","sm",()=>{dropSession(o);save();renderHome()}));it.append(a);box.append(it)}
 }
+$("resumeTog").onclick=()=>{st.ayar.resumeAcik=st.ayar.resumeAcik===false;save();renderResume()};
 function parkCurrent(){const c=st.oturum;if(c&&!c.bitti&&Object.keys(c.ans).length){c.son=Date.now();st.park[c.anahtar||("o"+c.basla)]=c}st.oturum=null}
 function resumeSession(o){
   if(st.oturum===o){openSession();return}
