@@ -33,7 +33,7 @@ button.wide{width:100%}
 button.sm{min-height:40px;font-size:14px;padding:0 12px}
 button.danger{border-color:var(--no);color:var(--no);background:var(--nobg)}
 button:disabled{opacity:.45;cursor:default}
-select,input[type=number],input[type=text]{height:48px;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:0 10px;width:100%}
+select,input[type=number],input[type=text],input[type=search]{height:48px;border:1px solid var(--line);border-radius:10px;background:var(--card);padding:0 10px;width:100%}
 label.f{display:block;font-size:13px;color:var(--mut);margin:0 0 4px}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
 .acts{display:flex;gap:8px;flex-wrap:wrap}
@@ -82,6 +82,7 @@ nav#tabs button.on{color:var(--acc);font-weight:650}
 .op{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;margin-bottom:8px;padding:12px;height:auto;min-height:54px;line-height:1.45}
 .op em{font-style:normal;font-weight:700;color:var(--mut);flex:none;width:26px;height:26px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
 .op span{flex:1;white-space:pre-wrap}
+.op:disabled{opacity:1;cursor:default}
 .op.sel{border-color:var(--acc);background:var(--accbg)}
 .op.ok{background:var(--okbg);border-color:var(--ok);color:var(--ok)}
 .op.no{background:var(--nobg);border-color:var(--no);color:var(--no)}
@@ -127,6 +128,41 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 .filein{position:relative;display:inline-flex}
 .filein input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
 @media (min-width:700px){body{font-size:16.5px}.stats{gap:10px}}
+/* 3.0: düzen, bildirim, akıcılık */
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+main{zoom:var(--olcek,1)}
+section{animation:gir .18s ease-out}
+@keyframes gir{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+#toasts{position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;z-index:20;pointer-events:none;padding:0 12px}
+.toast{pointer-events:auto;max-width:560px;width:100%;display:flex;align-items:center;gap:10px;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px;font-size:14.5px;line-height:1.4;box-shadow:0 6px 24px rgba(0,0,0,.18);animation:tgir .2s ease-out}
+.toast.err{background:var(--no);color:#fff}
+.toast span{flex:1}
+.toast button{min-height:36px;border:0;background:rgba(255,255,255,.18);color:inherit;font-weight:650;font-size:14px;padding:0 12px}
+@keyframes tgir{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ibtn{min-height:40px;min-width:40px;padding:0;font-size:15px;line-height:1}
+.dz{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden}
+.dz-h{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;background:var(--note)}
+.dz-h .nm{flex:1;font-weight:650;line-height:1.35;min-width:0;overflow-wrap:anywhere}
+.dz-h small{display:block;font-weight:400;color:var(--mut);font-size:12.5px}
+.dz-k{display:flex;align-items:center;gap:6px;padding:8px 8px 8px 12px;border-top:1px solid var(--line)}
+.dz-k .nm{flex:1;min-width:0;font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}
+.dz-k .nm small{display:block;color:var(--mut);font-size:12.5px}
+.dz-k.ust{border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+.dz-a{display:flex;gap:6px;flex-wrap:wrap;padding:0 8px 8px 12px}
+.dz-a select{height:40px;font-size:14px;flex:1;min-width:150px}
+.mini{display:block;height:4px;border-radius:2px;background:var(--line);margin-top:4px;overflow:hidden}
+.mini i{display:block;height:100%;background:var(--acc)}
+.prog{height:4px;border-radius:2px;background:var(--line);margin:-4px 0 10px;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--acc);transition:width .2s}
+#treeAra{margin-bottom:8px}
+.ara{background:var(--accbg);border:1px solid var(--acc);border-radius:12px;padding:10px 12px;margin:0 0 10px;font-size:14.5px}
+.ara>p{margin:0 0 8px}
+.ara .item p{font-size:14.5px}
+.ara .item small{margin-bottom:2px}
+.gizli-not{display:inline-block;font-size:12px;color:var(--warn);background:var(--warnbg);border-radius:6px;padding:1px 6px;margin-top:2px}
+.salt{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:30;display:flex;align-items:center;justify-content:center;padding:20px}
+.salt .card{max-width:440px}
 </style>
 </head>
 <body>
@@ -138,6 +174,7 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
   <p class="sub" id="homeSub">Çevrimdışı çalışır. Sorular ve ilerlemen bu cihazda saklanır.</p>
   <div class="msg info hid" id="instBar"><span id="instTxt"></span><div class="acts" style="margin-top:8px"><button class="sm pri" id="instBtn">Uygulamayı yükle</button><button class="sm" id="instNo">Şimdi değil</button></div></div>
   <p class="sub" id="surumAlt" style="margin:-8px 0 14px;font-size:12.5px"></p>
+  <div class="msg info hid" id="yedekHatir"><span id="yedekHatirT"></span><div class="acts" style="margin-top:8px"><button class="sm pri" id="yedekHatirB">Şimdi yedekle</button><button class="sm" id="yedekHatirS">Sonra hatırlat</button></div></div>
   <div class="card hid" id="resumeCard"><button class="rtog" id="resumeTog" aria-expanded="true" aria-controls="resumeBody"><span class="ok">▸</span><h2 id="resumeH">Yarım kalan oturumlar</h2><small id="resumeHint">Gizle</small></button><div id="resumeBody"><p class="sub" style="margin:6px 0 10px">Kaldığın yerden devam edebilirsin. Bölümler listesindeki ▶ düğmesiyle de aynı oturumu açarsın.</p><div id="resumeList"></div></div></div>
   <div id="emptyHome" class="card hid">
     <h2>Havuz boş</h2>
@@ -153,7 +190,11 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
     </div>
     <div class="card">
       <div class="top" style="margin-bottom:6px"><h2 style="margin:0;color:var(--ink)">Bölümler</h2><span class="acts"><button class="sm" id="selAll">Tümünü seç</button><button class="sm" id="selNone">Temizle</button></span></div>
+      <input type="search" id="treeAra" placeholder="Ara: başlık, soru, şık veya çözüm (ör. genç gir)" aria-label="Başlıklarda ve sorularda ara" autocomplete="off">
+      <div class="ara hid" id="araSonuc"></div>
       <ul class="tree" id="tree"></ul>
+      <p class="sub" id="treeBos" style="margin:6px 0 0" hidden>Aramana uyan başlık yok.</p>
+      <div class="acts" style="margin-top:8px"><button class="sm" id="sirala">⇅ Klasör ve kaynak sırasını düzenle</button></div>
     </div>
     <div class="card">
       <h2>Oturum ayarları</h2>
@@ -177,6 +218,7 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 <!-- OTURUM -->
 <section id="v-oturum" class="hid">
   <div class="top"><span id="qinfo"></span><span class="acts"><button class="sm" id="bitir">Bitir</button><button class="sm" id="kapat">Kapat</button></span></div>
+  <div class="prog" aria-hidden="true"><i id="progBar"></i></div>
   <div class="grid" id="grid"></div>
   <div class="card" id="qcard"></div>
   <div class="nav"><button id="prev">Önceki</button><button id="next" class="pri">Sonraki</button></div>
@@ -226,20 +268,31 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
     <p class="sub" style="margin-bottom:10px">Yedek dosyası bütün soruları, ilerlemeni, favorilerini ve hata defterini içerir. Başka cihazda "Yedekten geri yükle" ile açarsın.</p>
     <div class="acts"><button class="pri" id="yedek">Yedekle (dışa aktar)</button><span class="filein"><button tabindex="-1">Yedekten geri yükle</button><input type="file" class="imp" accept=".json,application/json" aria-label="Yedekten geri yükle"></span></div>
   </div>
-  <div class="card"><h2>Klasörler</h2>
-    <p class="sub" style="margin-bottom:10px">Soru dosyalarını kendi açtığın klasörlerde toplarsın. Örneğin "Gelir Vergisi Kanunu" klasörü aç, BDR bölüm dosyalarını içine koy. Çalış ekranında klasör en üst başlık olarak görünür.</p>
-    <div class="acts" style="flex-wrap:nowrap"><input type="text" id="yeniKlasor" placeholder="Klasör adı" maxlength="80" aria-label="Yeni klasör adı"><button class="pri" id="klasorEkle" style="white-space:nowrap">Klasör oluştur</button></div>
-    <div id="klasorList" style="margin-top:12px"></div></div>
-  <div class="card"><h2>Kaynaklar</h2><p class="sub" style="margin-bottom:10px">Her yüklediğin dosya bir kaynaktır. Klasörünü buradan seçip değiştirebilirsin.</p><div id="kaynakList"></div></div>
+  <div class="card" id="duzenCard"><h2>Klasörler ve sıralama</h2>
+    <p class="sub" style="margin-bottom:10px">Klasör aç, kaynakları klasörlere koy ve ▲ ▼ düğmeleriyle sırala. Burada gördüğün sıra Çalış ekranındaki, favorilerdeki ve hata defterindeki sıradır. Yeni yüklenen bölüm, adındaki bölüm numarasına göre (BİRİNCİ, 11. BÖLÜM vb.) kendiliğinden doğru yere yerleşir.</p>
+    <div class="acts" style="flex-wrap:nowrap;margin-bottom:12px"><input type="text" id="yeniKlasor" placeholder="Yeni klasör adı" maxlength="80" aria-label="Yeni klasör adı"><button class="pri" id="klasorEkle" style="white-space:nowrap">Klasör oluştur</button></div>
+    <div id="duzenList"></div>
+    <div class="acts"><button class="sm" id="hepsiSirala">Tümünü bölüm numarasına göre sırala</button></div></div>
+  <div class="card" id="gizliCard">
+    <h2 id="gizliH">Gizlenen sorular</h2>
+    <p class="sub" style="margin-bottom:10px">Soru ekranında "Bu soruyu gösterme" dediğin sorular burada durur. Gizli sorular oturumlara, aramaya ve "Tüm bölümleri karıştır"a gelmez; silinmez, ilerlemen korunur.</p>
+    <div class="acts" style="margin-bottom:10px" id="gizliActs"></div>
+    <div id="gizliList"></div>
+  </div>
   <div class="card">
     <h2>Görünüm</h2>
     <div class="seg" id="segTema"><button data-v="sistem">Sistem</button><button data-v="acik">Açık</button><button data-v="koyu">Koyu</button></div>
+    <label class="f" style="margin-top:12px">Yazı boyutu</label>
+    <div class="seg" id="segOlcek"><button data-v="0.92">Küçük</button><button data-v="1">Normal</button><button data-v="1.1">Büyük</button><button data-v="1.22">Çok büyük</button></div>
+    <label class="chk" style="margin-top:6px"><input type="checkbox" id="titresim"> Cevap verince kısa titreşim (destekleyen telefonlarda)</label>
+    <label class="chk"><input type="checkbox" id="kaydir"> Soru ekranında sağa/sola kaydırarak soru değiştir</label>
   </div>
   <div class="card">
     <h2>Uygulama</h2>
     <p style="margin:0 0 4px;font-weight:650" id="surum"></p>
     <p class="sub" id="pwaDurum" style="margin-bottom:10px"></p>
-    <div class="acts"><button id="instBtn2" class="hid">Uygulamayı yükle</button><button id="guncelle">Güncellemeyi denetle</button></div>
+    <p class="sub" id="depoDurum" style="margin:-4px 0 10px"></p>
+    <div class="acts"><button id="instBtn2" class="hid">Uygulamayı yükle</button><button id="guncelle">Güncellemeyi denetle</button><button id="hataKaydi" class="hid">Hata kaydını kopyala</button></div>
   </div>
   <div class="card">
     <h2>Sıfırlama</h2>
@@ -248,6 +301,7 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 </section>
 </main>
 
+<div id="toasts" role="status" aria-live="polite"></div>
 <nav id="tabs"><div>
   <button data-v="calis" class="on"><b>▤</b>Çalış</button>
   <button data-v="fav"><b>☆</b><span id="tFav">Favoriler</span></button>
@@ -257,11 +311,12 @@ details.grp>.ic>.item:first-of-type{border-top:0;padding-top:0}
 
 <script>
 "use strict";
-const APP_VERSION="2.1",APP_DATE="14.11.2026";
+const APP_VERSION="3.1",APP_DATE="15.11.2026";
 const $=id=>document.getElementById(id);
 const L="ABCDEF";
 const SEP=" › ";
-let st={sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,park:{},klasorler:[],klasor:{},acikListe:[],ayar:{tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false}};
+const AYAR0={ilkVeri:0,tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false,olcek:1,titresim:true,kaydir:true,sonYedek:0,degisti:false,yedekErtele:0};
+let st={gizli:{},sorular:{},sira:[],prog:{},fav:{},hata:{},sel:[],acik:[],oturum:null,park:{},klasorler:[],klasor:{},kaynakSira:[],ustSira:[],acikListe:[],ayar:Object.assign({},AYAR0)};
 let view="calis",tree=null,idKey={},sonFiltre=false,deferredInstall=null;
 
 /* ---------- kalıcı depolama ---------- */
@@ -269,13 +324,23 @@ let idb=null,saveT=null;
 function openDb(){return new Promise(res=>{try{const r=indexedDB.open("sbvmy7c41-soru-bankasi",1);r.onupgradeneeded=()=>r.result.createObjectStore("kv");r.onsuccess=()=>res(r.result);r.onerror=()=>res(null)}catch(e){res(null)}})}
 function idbGet(k){return new Promise(res=>{if(!idb)return res(undefined);try{const r=idb.transaction("kv").objectStore("kv").get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>res(undefined)}catch(e){res(undefined)}})}
 function idbSet(k,v){return new Promise(res=>{if(!idb)return res(false);try{const t=idb.transaction("kv","readwrite");t.objectStore("kv").put(v,k);t.oncomplete=()=>res(true);t.onerror=()=>res(false)}catch(e){res(false)}})}
-async function flush(){clearTimeout(saveT);saveT=null;const ok=await idbSet("state",st);if(!ok){try{localStorage.setItem("sbvmy7c41-soru-bankasi",JSON.stringify(st))}catch(e){}}}
-function save(){if(saveT)return;saveT=setTimeout(flush,250)}
+let saltOkunur=false,kayitUyari=false;
+async function flush(){clearTimeout(saveT);saveT=null;if(saltOkunur)return false;
+  let ok=await idbSet("state",st);
+  if(!ok){try{localStorage.setItem("sbvmy7c41-soru-bankasi",JSON.stringify(st));ok=true}catch(e){ok=false}}
+  if(!ok&&!kayitUyari){kayitUyari=true;toast("Veriler kaydedilemedi. Cihazda yer kalmamış ya da tarayıcı depolamayı engelliyor olabilir. Hemen yedek al.",{tur:"err",sure:0,eylem:"Yedekle",fn:()=>$("yedek").click()})}
+  if(ok)kayitUyari=false;return ok}
+function save(){if(saltOkunur)return;if(saveT)return;saveT=setTimeout(flush,250)}
+window.addEventListener("pagehide",()=>{if(saveT)flush()});
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"&&saveT)flush()});
 async function loadState(){
   idb=await openDb();let s=await idbGet("state");
   if(!s){try{s=JSON.parse(localStorage.getItem("sbvmy7c41-soru-bankasi")||"null")}catch(e){s=null}}
-  if(s&&typeof s==="object"){st=Object.assign(st,s);if(!st.park||typeof st.park!=="object")st.park={};if(!Array.isArray(st.klasorler))st.klasorler=[];if(!st.klasor||typeof st.klasor!=="object")st.klasor={};st.ayar=Object.assign({tema:"sistem",hataOto:true,sikKaristir:true,karistir:true,mod:"calisma",adet:20,filtre:"tumu",instNo:false},s.ayar||{})}
+  if(s&&typeof s==="object"){st=Object.assign(st,s);
+    for(const k of ["sorular","prog","fav","hata","park","klasor","gizli"])if(!st[k]||typeof st[k]!=="object"||Array.isArray(st[k]))st[k]={};
+    for(const k of ["sira","sel","acik","klasorler","acikListe"])if(!Array.isArray(st[k]))st[k]=[];
+    const ilkGecis=!Array.isArray(s.kaynakSira);if(ilkGecis){st.kaynakSira=[];st.ustSira=[]}
+    st.ayar=Object.assign({},AYAR0,s.ayar||{});st._gecis=ilkGecis}
   if(navigator.storage&&navigator.storage.persist){try{navigator.storage.persist()}catch(e){}}
 }
 
@@ -290,7 +355,110 @@ function str(v){return v===undefined||v===null?"":String(v).trim()}
 function pct(d,n){return n?"%"+Math.round(d/n*100):"–"}
 function applyTema(){const t=st.ayar.tema;if(t==="sistem")document.documentElement.removeAttribute("data-tema");else document.documentElement.setAttribute("data-tema",t)}
 function download(name,text,type){const a=document.createElement("a"),u=URL.createObjectURL(new Blob([text],{type:type||"application/json"}));a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
-function havuzMsg(t,kind){const m=$("havuzMsg");m.textContent=t||"";m.className="msg "+(kind||"info")+(t?"":" hid")}
+function havuzMsg(t,kind){if(t)toast(t,{tur:kind==="err"?"err":"",sure:kind==="err"?9000:5000})}
+function toast(msg,o){o=o||{};const box=$("toasts");if(!box)return null;const t=el("div","toast"+(o.tur==="err"?" err":""));t.append(el("span","",msg));
+  let bitti=false;const kapat=()=>{if(bitti)return;bitti=true;t.style.transition="opacity .15s";t.style.opacity="0";setTimeout(()=>t.remove(),160)};
+  if(o.eylem)t.append(btn(o.eylem,"",()=>{kapat();if(o.fn)o.fn()}));
+  const x=btn("✕","",kapat);x.setAttribute("aria-label","Bildirimi kapat");t.append(x);
+  if(o.anahtar){t.dataset.k=o.anahtar;box.querySelectorAll('[data-k="'+o.anahtar+'"]').forEach(x=>x.remove())}
+  while(box.children.length>=2)box.firstChild.remove();box.append(t);
+  const sure=o.sure===undefined?4500:o.sure;if(sure)setTimeout(kapat,sure);return t}
+function mb(b){return b>=1073741824?(b/1073741824).toFixed(1)+" GB":(b/1048576).toFixed(1)+" MB"}
+/* hata yakalama: uygulama çökmesin, kullanıcı bilgilensin */
+const hataLog=[];let sonHataT=0;
+function hataYakala(m){m=String(m||"bilinmeyen hata");hataLog.push(new Date().toISOString()+" · "+APP_VERSION+" · "+m);if(hataLog.length>40)hataLog.shift();
+  const b=$("hataKaydi");if(b)b.classList.remove("hid");
+  if(Date.now()-sonHataT>4000){sonHataT=Date.now();toast("Beklenmeyen bir hata oldu: "+m.slice(0,100)+". Verilerin kayıtlı; sorun sürerse uygulamayı kapatıp aç.",{tur:"err",sure:9000})}}
+window.addEventListener("error",e=>{if(e&&e.message)hataYakala(e.message)});
+window.addEventListener("unhandledrejection",e=>hataYakala(e&&e.reason&&e.reason.message||String(e&&e.reason)));
+
+/* ---------- soru içi arama ---------- */
+const TRMAP={"ç":"c","ğ":"g","ı":"i","ö":"o","ş":"s","ü":"u","â":"a","î":"i","û":"u"};
+function norm1(s){return String(s||"").toLocaleLowerCase("tr").replace(/[çğıöşüâîû]/g,c=>TRMAP[c])}/* karakter karakter: uzunluk değişmez */
+function norm(s){return norm1(s).replace(/\s+/g," ")}
+let araIdx=null;
+function araIndex(){if(!araIdx){araIdx=new Map();for(const id of st.sira){const q=st.sorular[id];if(q)araIdx.set(id,norm([q.soru,q.vaka,...q.secenekler,q.cozum].join(" \n ")))}}return araIdx}
+function soruAra(metin){const t=norm(metin).trim();if(t.length<2)return {ids:[],gizli:0};const parcalar=t.split(" ");const ids=[];let gizli=0;
+  for(const [id,s] of araIndex()){if(parcalar.every(p=>s.includes(p))){if(st.gizli[id])gizli++;else ids.push(id)}}return {ids,gizli}}
+function kesit(q,metin){/* eşleşmenin geçtiği yerden kısa bir parça + vurgu */
+  const p=norm(metin).trim().split(" ")[0];const alanlar=[["",q.soru],["Şık: ",q.secenekler.join(" · ")],["Çözüm: ",q.cozum],["Vaka: ",q.vaka]];
+  for(const [et,t] of alanlar){if(!t)continue;const i=norm1(t).indexOf(p);if(i<0)continue;
+    const bas=Math.max(0,i-70),son=Math.min(t.length,i+p.length+110);const pp=el("p");if(et)pp.append(el("b","",et));
+    pp.append(document.createTextNode((bas?"…":"")+t.slice(bas,i)),el("mark","",t.slice(i,i+p.length)),document.createTextNode(t.slice(i+p.length,son)+(son<t.length?"…":"")));return pp}
+  return el("p","",q.soru.slice(0,160))}
+let araListe=false;
+function renderAra(){const box=$("araSonuc"),metin=$("treeAra").value.trim();box.textContent="";
+  if(norm(metin).trim().length<2){show(box,false);return}
+  const r=soruAra(metin),ids=r.ids;show(box,true);
+  const f=filterIds(ids);
+  box.append(el("p","",ids.length?"“"+metin+"” "+ids.length+" soruda geçiyor (soru, şık veya çözümde)."+(f.length!==ids.length?" Seçili filtreye uyan: "+f.length+".":"")+(r.gizli?" "+r.gizli+" gizli soru hariç.":""):"“"+metin+"” hiçbir soruda geçmiyor"+(r.gizli?" ("+r.gizli+" gizli soruda geçiyor)":"")+"."));
+  if(!ids.length)return;
+  const a=el("div","acts");
+  const coz=btn("▶ Bu "+(f.length||ids.length)+" soruyu çöz","sm pri",()=>{const x=f.length?f:ids;startSession(x,"Arama: “"+metin+"”",{karistir:st.ayar.karistir,adet:Math.min(500,x.length),anahtar:"ara:"+norm(metin)+"#"+st.ayar.mod})});
+  a.append(coz,btn(araListe?"Listeyi gizle":"Soruları listele","sm",()=>{araListe=!araListe;renderAra()}));box.append(a);
+  if(araListe){const l=el("div");l.style.marginTop="10px";const ust=ids.slice(0,60);
+    for(const id of ust){const q=st.sorular[id],it=el("div","item");it.append(el("small","",qYol(q).slice(1).join(SEP)),kesit(q,metin));
+      const ac=el("div","acts");ac.append(btn("Çöz","sm",()=>startSession([id],"Arama: “"+metin+"”",{adet:1,mod:"calisma"})));it.append(ac);l.append(it)}
+    if(ids.length>ust.length)l.append(el("small","","İlk "+ust.length+" soru listelendi; hepsini çözmek için yukarıdaki düğmeyi kullan."));
+    box.append(l)}}
+function soruGizle(id){st.gizli[id]=Date.now();save();updateTabs();
+  toast("Soru gizlendi. Bundan sonra oturumlara gelmeyecek; Havuz › Gizlenen sorular'dan geri açabilirsin.",{eylem:"Geri al",sure:8000,fn:()=>{delete st.gizli[id];save();render()}})}
+
+/* ---------- doğal bölüm sırası ---------- */
+const SIRA_BIR={"BİRİNCİ":1,"İKİNCİ":2,"ÜÇÜNCÜ":3,"DÖRDÜNCÜ":4,"BEŞİNCİ":5,"ALTINCI":6,"YEDİNCİ":7,"SEKİZİNCİ":8,"DOKUZUNCU":9};
+const SIRA_ONL={"ONUNCU":10,"YİRMİNCİ":20,"OTUZUNCU":30,"KIRKINCI":40,"ELLİNCİ":50,"ALTMIŞINCI":60,"YETMİŞİNCİ":70};
+const SIRA_ONK={"ON":10,"YİRMİ":20,"OTUZ":30,"KIRK":40,"ELLİ":50,"ALTMIŞ":60,"YETMİŞ":70};
+function sirano(ad){/* "İKİNCİ BÖLÜM", "ON BİRİNCİ BÖLÜM", "11. Bölüm", "Bölüm 3" gibi adlardan sıra numarası çıkarır */
+  const u=str(ad).toLocaleUpperCase("tr");let m;
+  if((m=u.match(/^\s*(\d{1,3})(?![\d.,]\d)/)))return +m[1];
+  const w=u.split(/[^A-ZÇĞİÖŞÜ0-9]+/).filter(Boolean);
+  for(let i=0;i<Math.min(w.length,5);i++){
+    if(SIRA_ONK[w[i]]&&SIRA_BIR[w[i+1]])return SIRA_ONK[w[i]]+SIRA_BIR[w[i+1]];
+    if(SIRA_BIR[w[i]])return SIRA_BIR[w[i]];
+    if(SIRA_ONL[w[i]])return SIRA_ONL[w[i]]}
+  if((m=u.match(/(?:BÖLÜM|ÜNİTE|KISIM|DERS|KONU|FASIL)\s*[:.\-]?\s*(\d{1,3})(?!\d)/)))return +m[1];
+  if((m=u.match(/(\d{1,3})\s*\.?\s*(?:BÖLÜM|ÜNİTE|KISIM|DERS|KONU)/)))return +m[1];
+  return null}
+function numaraylaSirala(list,adFn){/* numaralı öğeleri kendi aralarında sıralar, numarasızların yeri değişmez */
+  const yer=[],num=[];list.forEach((x,i)=>{const n=sirano(adFn(x));if(n!==null){yer.push(i);num.push({x,n,i})}});
+  num.sort((a,b)=>a.n-b.n||a.i-b.i);const out=list.slice();yer.forEach((p,j)=>out[p]=num[j].x);return out}
+function dogalEkle(list,x,adFn,kardesMi){/* x'i kardeşleri arasında numarasına göre uygun yere ekler */
+  const n=sirano(adFn(x));const idx=[];list.forEach((y,i)=>{if(kardesMi(y))idx.push(i)});
+  if(n!==null){let sonKucuk=-1;for(const i of idx){const m=sirano(adFn(list[i]));if(m===null)continue;if(m>n){list.splice(i,0,x);return}sonKucuk=i}
+    if(sonKucuk>=0){list.splice(sonKucuk+1,0,x);return}}
+  if(idx.length)list.splice(idx[idx.length-1]+1,0,x);else list.push(x)}
+const kKlasor=a=>st.klasor[a]||"";
+function kaynakAdlari(){const s=new Set();for(const id of st.sira){const q=st.sorular[id];if(q)s.add(q.kaynak)}return s}
+function duzenTamir(){
+  const v=kaynakAdlari();
+  st.klasorler=[...new Set(st.klasorler.map(str).filter(Boolean))];
+  for(const a of Object.keys(st.klasor)){if(!str(st.klasor[a]))delete st.klasor[a];else if(!st.klasorler.includes(st.klasor[a]))st.klasorler.push(st.klasor[a])}
+  st.kaynakSira=[...new Set(st.kaynakSira)].filter(a=>v.has(a));
+  for(const a of v)if(!st.kaynakSira.includes(a)){const k=kKlasor(a);dogalEkle(st.kaynakSira,a,x=>x,y=>kKlasor(y)===k)}
+  const gerek=new Set(st.klasorler.map(k=>"d:"+k));for(const a of st.kaynakSira)if(!st.klasor[a])gerek.add("s:"+a);
+  st.ustSira=[...new Set(st.ustSira)].filter(t=>gerek.has(t));
+  for(const t of gerek)if(!st.ustSira.includes(t))dogalEkle(st.ustSira,t,x=>x.slice(2),y=>y[0]===t[0]);
+}
+function gecisDuzen(){/* 3.0 öncesi verilerden ilk sıralama: eski görünüm korunur, klasör içleri numaraya göre dizilir */
+  const v=[...kaynakAdlari()];st.kaynakSira=v.slice();const u=[];
+  for(const a of v){const t=st.klasor[a]?"d:"+st.klasor[a]:"s:"+a;if(!u.includes(t))u.push(t)}
+  for(const k of st.klasorler)if(!u.includes("d:"+k))u.push("d:"+k);st.ustSira=u;
+  let degisti=false;for(const k of st.klasorler){const once=st.kaynakSira.join("\n");klasorIciSirala(k);if(once!==st.kaynakSira.join("\n"))degisti=true}
+  return degisti}
+function klasorIciSirala(k){const ic=st.kaynakSira.filter(a=>kKlasor(a)===k);const yeni=numaraylaSirala(ic,a=>a);let j=0;st.kaynakSira=st.kaynakSira.map(a=>kKlasor(a)===k?yeni[j++]:a)}
+function siraliIds(){const g=new Map();for(const id of st.sira){const q=st.sorular[id];if(!q)continue;if(!g.has(q.kaynak))g.set(q.kaynak,[]);g.get(q.kaynak).push(id)}
+  const out=[],kul=new Set();const ekle=a=>{if(g.has(a)&&!kul.has(a)){kul.add(a);for(const id of g.get(a))out.push(id)}};
+  for(const t of st.ustSira){const ad=t.slice(2);if(t[0]==="d"){for(const a of st.kaynakSira)if(st.klasor[a]===ad)ekle(a)}else ekle(ad)}
+  for(const a of g.keys())ekle(a);return out}
+function duzenUygula(mesaj){buildTree();save();if(view==="havuz")renderHavuz();else render();if(mesaj)toast(mesaj)}
+function ustKaydir(t,yon){const i=st.ustSira.indexOf(t),j=i+yon;if(i<0||j<0||j>=st.ustSira.length)return;[st.ustSira[i],st.ustSira[j]]=[st.ustSira[j],st.ustSira[i]];duzenUygula()}
+function kaynakKaydir(a,yon){const k=kKlasor(a);if(!k)return ustKaydir("s:"+a,yon);
+  const ic=st.kaynakSira.filter(x=>kKlasor(x)===k),i=ic.indexOf(a),j=i+yon;if(j<0||j>=ic.length)return;
+  const ia=st.kaynakSira.indexOf(a),ib=st.kaynakSira.indexOf(ic[j]);[st.kaynakSira[ia],st.kaynakSira[ib]]=[st.kaynakSira[ib],st.kaynakSira[ia]];duzenUygula()}
+function siraYerlestir(ids){/* dosyadaki soru sırası korunur; yeniden yüklenen dosya eski sıranın yerine geçer */
+  ids=[...new Set(ids)];const set=new Set(ids);let n=0,bulundu=false;
+  for(const id of st.sira){if(set.has(id)){bulundu=true;break}n++}
+  const kalan=st.sira.filter(id=>!set.has(id));if(!bulundu)n=kalan.length;kalan.splice(n,0,...ids);st.sira=kalan}
 
 /* ---------- soru biçimi ---------- */
 function arr(v){return Array.isArray(v)?v.map(x=>x&&typeof x==="object"?str(x.madde||x.baslik||""):str(x)).filter(Boolean):str(v)?[str(v)]:[]}
@@ -324,15 +492,27 @@ function normalize(q,kaynak){
 function importObj(obj,fileName,klasor){
   const r={yeni:0,guncel:0,hatali:0,yedek:false};
   let list=null,kaynak=fileName.replace(/\.json$/i,"");
+  if(obj&&!Array.isArray(obj)&&!Array.isArray(obj.sorular)&&Array.isArray(obj.baslik_gruplari)){
+    /* "baslik_gruplari" şeması: her grup kendi sorularını taşır */
+    const tum=[];for(const g of obj.baslik_gruplari){if(!g||!Array.isArray(g.sorular))continue;
+      for(const q of g.sorular){if(q&&typeof q==="object"){const k=q.kaynak_atiflari&&typeof q.kaynak_atiflari==="object"?q.kaynak_atiflari:(q.kaynak_atiflari={});
+        if(!k.kitap_yeri&&!k.dokuman_yeri&&g.tam_baslik_yolu)k.kitap_yeri=g.tam_baslik_yolu;if(k.sayfa===undefined&&g.sayfa_araligi)k.sayfa=g.sayfa_araligi}tum.push(q)}}
+    obj=Object.assign({},obj,{sorular:tum});
+  }
   if(Array.isArray(obj))list=obj;
   else if(obj&&Array.isArray(obj.sorular)){list=obj.sorular;if(obj.kaynak)kaynak=str(typeof obj.kaynak==="object"?obj.kaynak.ad:obj.kaynak)||kaynak;else if(obj.bolum_adi||obj.kanun_adi)kaynak=str(obj.bolum_adi||obj.kanun_adi)||kaynak}
   if(!list)return null;
-  const yedekMi=obj&&obj.format==="soru-bankasi-yedek";
+  const yedekMi=obj&&obj.format==="soru-bankasi-yedek";const dosya=new Map(),gorulen=new Set();
   for(const raw of list){
     const q=normalize(raw,kaynak);if(!q){r.hatali++;continue}
+    if(gorulen.has(q.id)){r.cift=(r.cift||0)+1;continue}gorulen.add(q.id);
     if(st.sorular[q.id])r.guncel++;else{r.yeni++;st.sira.push(q.id)}
-    st.sorular[q.id]=q;
-    if(klasor&&!yedekMi)st.klasor[q.kaynak]=klasor;
+    st.sorular[q.id]=q;if(!dosya.has(q.kaynak))dosya.set(q.kaynak,[]);dosya.get(q.kaynak).push(q.id);
+  }
+  r.kaynaklar=[...dosya.keys()];
+  for(const [k,ids] of dosya){
+    if(!yedekMi)siraYerlestir(ids);
+    if(klasor&&!yedekMi&&kKlasor(k)!==klasor){const e=kKlasor(k);if(st.kaynakSira.includes(k)){yolDegis((e?e+SEP:"")+k,klasor+SEP+k);st.kaynakSira=st.kaynakSira.filter(x=>x!==k)}klasorEkle(klasor);st.klasor[k]=klasor}
   }
   if(obj&&obj.format==="soru-bankasi-yedek"){
     r.yedek=true;
@@ -341,25 +521,38 @@ function importObj(obj,fileName,klasor){
     for(const k of (Array.isArray(obj.klasorler)?obj.klasorler:[]))klasorEkle(k);
     for(const [k,v] of Object.entries(obj.klasorKaynak||{}))if(str(v)&&!st.klasor[k]){klasorEkle(v);st.klasor[k]=str(v)}
     for(const [id,h] of Object.entries(obj.hataDefteri||{})){if(st.sorular[id]&&h&&!st.hata[id])st.hata[id]={y:+h.y||1,t:+h.t||Date.now()}}
+    for(const [id,t] of Object.entries(obj.gizli||{})){if(st.sorular[id]&&!st.gizli[id])st.gizli[id]=+t||Date.now()}
+    for(const a of (Array.isArray(obj.kaynakSira)?obj.kaynakSira:[]))if(!st.kaynakSira.includes(a))st.kaynakSira.push(a);
+    for(const t of (Array.isArray(obj.ustSira)?obj.ustSira:[]))if(typeof t==="string"&&!st.ustSira.includes(t))st.ustSira.push(t);
   }
   return r;
 }
+let yukleniyor=false;
 async function importFiles(files,klasor){
-  let yeni=0,guncel=0,hatali=0,bad=[],yedek=false;
-  for(const f of files){
-    try{const r=importObj(JSON.parse((await f.text()).replace(/^﻿/,"")),f.name,klasor);if(!r){bad.push(f.name);continue}yeni+=r.yeni;guncel+=r.guncel;hatali+=r.hatali;yedek=yedek||r.yedek}
-    catch(e){bad.push(f.name)}
-  }
-  buildTree();if(!st.sel.length)selectAll(true);await flush();
+  if(yukleniyor)return;yukleniyor=true;const bekle=toast("Dosyalar okunuyor…",{sure:0});
+  let yeni=0,guncel=0,hatali=0,cift=0,bad=[],yedek=false,kay=[];const onceSel=st.sel.length,onceKeys=new Set();if(tree)eachNode(tree,c=>onceKeys.add(c.key));
+  try{
+    for(const f of files){
+      let metin;try{metin=(await f.text()).replace(/^\uFEFF/,"")}catch(e){bad.push(f.name+" (okunamadı)");continue}
+      let obj;try{obj=JSON.parse(metin)}catch(e){bad.push(f.name+" (geçerli JSON değil"+(e&&e.message?": "+e.message.slice(0,60):"")+")");continue}
+      try{const r=importObj(obj,f.name,klasor);if(!r){bad.push(f.name+" (soru listesi bulunamadı)");continue}yeni+=r.yeni;guncel+=r.guncel;hatali+=r.hatali;cift+=r.cift||0;yedek=yedek||r.yedek;kay.push(...r.kaynaklar)}
+      catch(e){bad.push(f.name+" ("+(e&&e.message||"hata")+")")}
+    }
+    buildTree();
+    if(!onceSel)selectAll(true);else{/* yeni gelen başlıklar, üst başlığı seçiliyse seçili gelsin */const s=new Set(st.sel);eachNode(tree,c=>{if(!onceKeys.has(c.key)){const ust=c.key.slice(0,c.key.lastIndexOf(SEP));if(s.has(ust))s.add(c.key)}});st.sel=[...s]}
+    if(yeni||guncel){st.ayar.degisti=true;if(!st.ayar.ilkVeri)st.ayar.ilkVeri=Date.now()}
+    await flush();
+  }finally{yukleniyor=false;if(bekle)bekle.remove()}
   let t=yeni+" yeni soru eklendi"+(guncel?", "+guncel+" soru güncellendi":"")+(yedek?"; ilerleme, favoriler ve hata defteri yedekten alındı":"")+".";
+  if(kay.length&&!yedek)t+=" Kaynak: "+[...new Set(kay)].map(a=>"“"+a+"”"+(kKlasor(a)?" ("+kKlasor(a)+" klasöründe)":"")).join(", ")+".";
   if(hatali)t+=" "+hatali+" soru biçim hatası nedeniyle atlandı.";
-  if(bad.length)t+=" Okunamayan dosya: "+bad.join(", ")+".";
-  havuzMsg(t,bad.length&&!yeni&&!guncel?"err":"ok");
-  if(view==="calis"&&(yeni||guncel))$("homeSub").textContent=t;
+  if(cift)t+=" Dosyada aynı soru "+cift+" kez tekrar ettiği için tekrarlar atlandı.";
+  if(bad.length)t+=" Sorunlu dosya: "+bad.join("; ")+".";
+  toast(t,{tur:bad.length&&!yeni&&!guncel?"err":"",sure:bad.length?12000:7000,anahtar:"yukle"});
   render();
 }
 document.querySelectorAll("input.imp").forEach(i=>i.onchange=e=>{const fs=[...e.target.files];e.target.value="";if(fs.length)importFiles(fs,i.dataset.klasor?$("impKlasor").value:"")});
-function backupData(){return {format:"soru-bankasi-yedek",surum:1,tarih:new Date().toISOString(),sorular:st.sira.filter(id=>st.sorular[id]).map(id=>st.sorular[id]),ilerleme:st.prog,favoriler:st.fav,hataDefteri:st.hata,klasorler:st.klasorler,klasorKaynak:st.klasor}}
+function backupData(){return {format:"soru-bankasi-yedek",surum:2,uygulama:APP_VERSION,tarih:new Date().toISOString(),sorular:st.sira.filter(id=>st.sorular[id]).map(id=>st.sorular[id]),ilerleme:st.prog,favoriler:st.fav,hataDefteri:st.hata,klasorler:st.klasorler,klasorKaynak:st.klasor,kaynakSira:st.kaynakSira,ustSira:st.ustSira,gizli:st.gizli}}
 const SABLON={format:"soru-bankasi",surum:1,kaynak:{ad:"Örnek Kaynak Kitap 2026"},sorular:[
  {id:"ornek-1-1-001",bolum:["Bölüm 1: Zamanaşımı","1.1 Tarh Zamanaşımı"],tur:"test",soru:"Vergi Usul Kanunu'na göre tarh zamanaşımı süresi kaç yıldır?",secenekler:["3 yıl","5 yıl","7 yıl","10 yıl","15 yıl"],dogru:1,cozum:"Vergi alacağının doğduğu takvim yılını takip eden yılın başından başlayarak beş yıl içinde tarh ve mükellefe tebliğ edilmeyen vergiler zamanaşımına uğrar.",atif:{kitap:"Örnek Kaynak Kitap 2026",bolum:"1.1 Tarh Zamanaşımı",sayfa:12,basiliSayfa:"4",konum:"Sayfanın ilk paragrafı",kanun:"VUK md. 114",teblig:"",diger:"",mevzuatOzeti:"Zamanaşımı süresi, vergi alacağının doğduğu yılı takip eden takvim yılının başından itibaren beş yıldır."},zorluk:"kolay"},
  {id:"ornek-1-2-001",bolum:["Bölüm 1: Zamanaşımı","1.2 Uygulama","1.2.1 Süre Hesabı"],tur:"vaka",vaka:"Bir mükellefin 2020 takvim yılına ilişkin vergi alacağı 2020 yılında doğmuştur. İdare bu döneme ilişkin tarhiyatı yapmayı planlamaktadır.",soru:"Bu alacak için tarh zamanaşımı hangi tarihte dolar?",secenekler:["31.12.2023","31.12.2024","31.12.2025","31.12.2026","31.12.2030"],dogru:2,cozum:"Süre 01.01.2021'de başlar ve beş yıl sürer: 2021, 2022, 2023, 2024, 2025. Zamanaşımı 31.12.2025 günü sonunda dolar.",atif:{kitap:"Örnek Kaynak Kitap 2026",bolum:"1.2.1 Süre Hesabı",sayfa:15,basiliSayfa:"7",konum:"Örnek 2",kanun:"VUK md. 114",teblig:"",diger:"",mevzuatOzeti:"Beş yıllık süre, alacağın doğduğu yılı izleyen yılın ilk gününden başlar."},zorluk:"orta"}
@@ -367,6 +560,8 @@ const SABLON={format:"soru-bankasi",surum:1,kaynak:{ad:"Örnek Kaynak Kitap 2026
 
 /* ---------- bölüm ağacı ---------- */
 function buildTree(){
+  st.sira=st.sira.filter(id=>st.sorular[id]);duzenTamir();st.sira=siraliIds();araIdx=null;
+  for(const id in st.gizli)if(!st.sorular[id])delete st.gizli[id];
   tree={key:"",ad:"",cocuk:new Map(),ids:[],tum:[]};
   for(const id of st.sira){const q=st.sorular[id];if(!q)continue;let n=tree;n.tum.push(id);let key="";
     for(const ad of (st.klasor[q.kaynak]?[st.klasor[q.kaynak],q.kaynak]:[q.kaynak]).concat(q.bolum)){key=key?key+SEP+ad:ad;if(!n.cocuk.has(ad))n.cocuk.set(ad,{key,ad,cocuk:new Map(),ids:[],tum:[]});n=n.cocuk.get(ad);n.tum.push(id)}
@@ -387,7 +582,7 @@ function toggleNode(node,on){
   (function fix(n){if(!n.cocuk.size)return s.has(n.key);let all=true;for(const c of n.cocuk.values())if(!fix(c))all=false;if(n!==tree){if(all)s.add(n.key);else s.delete(n.key)}return all})(tree);
   st.sel=[...s];save();
 }
-function selectedIds(){const s=new Set(st.sel);return st.sira.filter(id=>st.sorular[id]&&s.has(idKey[id]))}
+function selectedIds(){const s=new Set(st.sel);return st.sira.filter(id=>st.sorular[id]&&!st.gizli[id]&&s.has(idKey[id]))}
 function someSel(n,s){if(s.has(n.key))return true;for(const c of n.cocuk.values())if(someSel(c,s))return true;return false}
 let yarimMap=new Map();
 function selParca(node){/* bu düğüm tek başına seçildiğinde oluşan seçim anahtarı */
@@ -398,18 +593,24 @@ function selParca(node){/* bu düğüm tek başına seçildiğinde oluşan seçi
 function yarimHesapla(){yarimMap=new Map();for(const o of yarimlar()){const a=o.anahtar||"";if(!a.startsWith("sec:"))continue;const k=a.slice(4,a.lastIndexOf("#"));if(!yarimMap.has(k))yarimMap.set(k,[]);yarimMap.get(k).push(o)}
   for(const v of yarimMap.values())v.sort((x,y)=>(x.mod===st.ayar.mod?0:1)-(y.mod===st.ayar.mod?0:1))}
 function seciliYarim(){const k=selKey();return yarimlar().find(o=>o.anahtar===k)||null}
+let treeQ="";
 function renderTree(){
   yarimHesapla();
   const s=new Set(st.sel),acik=new Set(st.acik);
+  let gor=null;
+  if(treeQ){gor=new Map();(function w(n,ust){let any=false;for(const c of n.cocuk.values()){const m=c.ad.toLocaleLowerCase("tr").includes(treeQ);const alt=w(c,ust||m);if(ust||m||alt)gor.set(c.key,alt);any=any||m||alt}return any})(tree,false)}
+  $("treeBos").hidden=!(gor&&!gor.size);
   const mk=n=>{const ul=el("ul","tree");
     for(const c of n.cocuk.values()){
-      const li=el("li"),row=el("div","node"),has=c.cocuk.size>0,open=acik.has(c.key);
+      if(gor&&!gor.has(c.key))continue;
+      const li=el("li"),row=el("div","node"),has=c.cocuk.size>0,open=acik.has(c.key)||!!(gor&&gor.get(c.key));
       const tg=el("button","tog"+(has?"":" leaf"),open?"▾":"▸");tg.setAttribute("aria-label",open?"Daralt":"Genişlet");
-      tg.onclick=()=>{const a=new Set(st.acik);a.has(c.key)?a.delete(c.key):a.add(c.key);st.acik=[...a];save();renderHome()};
+      tg.onclick=()=>{const a=new Set(st.acik);if(open){a.delete(c.key);if(gor)gor.set(c.key,false)}else a.add(c.key);st.acik=[...a];save();renderHome()};
       const lb=el("label"),cb=el("input");cb.type="checkbox";cb.checked=s.has(c.key);cb.indeterminate=!cb.checked&&someSel(c,s);
       cb.onchange=()=>{toggleNode(c,cb.checked);renderHome()};
-      const coz=c.tum.filter(id=>st.prog[id]).length;
-      lb.append(cb,el("span","nm",c.ad),el("span","ct",coz+"/"+c.tum.length));row.append(tg,lb);
+      const gor_=c.tum.filter(id=>!st.gizli[id]),coz=gor_.filter(id=>st.prog[id]).length;
+      const nm=el("span","nm",c.ad),bar=el("span","mini"),bi=el("i");bi.style.width=(gor_.length?Math.round(coz/gor_.length*100):0)+"%";bar.append(bi);nm.append(bar);
+      lb.append(cb,nm,el("span","ct",coz+"/"+gor_.length));row.append(tg,lb);
       const ys=yarimMap.size?yarimMap.get(selParca(c)):null;
       if(ys){const o=ys[0],d=btn("▶ "+Object.keys(o.ans).length+"/"+o.ids.length,"devam",()=>resumeSession(o));d.title="Kaldığın yerden devam et ("+modAd(o.mod)+" modu)";d.setAttribute("aria-label","Kaldığın yerden devam et: "+c.ad+", "+Object.keys(o.ans).length+" / "+o.ids.length+" cevaplandı");row.append(d)}
       li.append(row);
@@ -422,14 +623,17 @@ function renderTree(){
 function renderHome(){
   const total=st.sira.length;show($("emptyHome"),!total);show($("homeBody"),total>0);
   renderResume();
+  {const gun=86400000,simdi=Date.now(),a=st.ayar;if(!a.ilkVeri&&total)a.ilkVeri=simdi;const gerek=total>0&&a.degisti&&(a.sonYedek?simdi-a.sonYedek>7*gun:simdi-a.ilkVeri>2*gun)&&simdi>(a.yedekErtele||0);show($("yedekHatir"),gerek);
+   if(gerek)$("yedekHatirT").textContent=(a.sonYedek?"Son yedeğin "+Math.floor((simdi-a.sonYedek)/gun)+" gün önce alındı.":"Henüz hiç yedek almadın.")+" Tarayıcı verisi silinir ya da cihaz değişirse sorular ve ilerlemen kaybolur. Yedek dosyası bunu önler."}
   if(!total)return;
   let coz=0,d=0,n=0;for(const id of st.sira){const p=st.prog[id];if(p){coz++;d+=p.d;n+=p.n}}
   $("sTop").textContent=total;$("sCoz").textContent=coz;$("sBas").textContent=pct(d,n);$("sHata").textContent=Object.keys(st.hata).filter(id=>st.sorular[id]).length;
-  renderTree();
+  renderTree();renderAra();
   document.querySelectorAll("#segMod button").forEach(b=>b.classList.toggle("on",b.dataset.v===st.ayar.mod));
   $("adet").value=st.ayar.adet;$("filtre").value=st.ayar.filtre;$("karistir").checked=!!st.ayar.karistir;$("sikKar").checked=!!st.ayar.sikKaristir;
   const ids=filterIds(selectedIds());
-  $("selInfo").textContent=st.sel.length?ids.length+" soru bu seçime ve filtreye uyuyor.":"Bölüm seçmedin. Bir ya da birden fazla bölümü işaretle ya da tüm bölümleri karıştır.";
+  const gz=Object.keys(st.gizli).length;
+  $("selInfo").textContent=st.sel.length?ids.length+" soru bu seçime ve filtreye uyuyor."+(gz?" ("+gz+" gizli soru hariç)":""):"Bölüm seçmedin. Bir ya da birden fazla bölümü işaretle ya da tüm bölümleri karıştır.";
   $("basla").disabled=!ids.length;
   const yo=st.sel.length?seciliYarim():null;show($("devamBtn"),!!yo);bastanArm=false;
   if(yo){const n=Object.keys(yo.ans).length;$("devamBtn").textContent="▶ Kaldığın yerden devam et · "+n+" / "+yo.ids.length+" cevaplandı";$("basla").textContent="Baştan başla";$("basla").classList.remove("pri");$("basla").disabled=false}
@@ -442,6 +646,10 @@ $("filtre").onchange=()=>{st.ayar.filtre=$("filtre").value;save();renderHome()};
 $("karistir").onchange=()=>{st.ayar.karistir=$("karistir").checked;save()};
 $("sikKar").onchange=()=>{st.ayar.sikKaristir=$("sikKar").checked;save()};
 $("selAll").onclick=()=>{selectAll(true);renderHome()};
+{let tT=null;$("treeAra").oninput=()=>{clearTimeout(tT);tT=setTimeout(()=>{treeQ=$("treeAra").value.trim().toLocaleLowerCase("tr");araListe=false;renderTree();renderAra()},150)}}
+$("sirala").onclick=()=>{setView("havuz");requestAnimationFrame(()=>$("duzenCard").scrollIntoView({behavior:"smooth",block:"start"}))};
+$("yedekHatirB").onclick=()=>$("yedek").click();
+$("yedekHatirS").onclick=()=>{st.ayar.yedekErtele=Date.now()+3*86400000;save();show($("yedekHatir"),false)};
 $("selNone").onclick=()=>{selectAll(false);renderHome()};
 let bastanArm=false,bastanT=null;
 $("devamBtn").onclick=()=>{const o=seciliYarim();if(o)resumeSession(o)};
@@ -451,7 +659,7 @@ $("basla").onclick=()=>{
     clearTimeout(bastanT);bastanArm=false;dropSession(yo)}
   const ids=filterIds(selectedIds());if(!ids.length){save();renderHome();return}
   startSession(ids,selBaslik(),{karistir:st.ayar.karistir,anahtar:selKey()})};
-$("karma").onclick=()=>{let ids=filterIds(st.sira.slice());if(!ids.length)ids=st.sira.slice();startSession(ids,"Tüm bölümler karışık",{karistir:true,anahtar:"karma#"+st.ayar.mod})};
+$("karma").onclick=()=>{const tum=st.sira.filter(id=>!st.gizli[id]);let ids=filterIds(tum);if(!ids.length)ids=tum;startSession(ids,"Tüm bölümler karışık",{karistir:true,anahtar:"karma#"+st.ayar.mod})};
 function yarimlar(){const a=[];if(st.oturum&&!st.oturum.bitti)a.push(st.oturum);for(const k in st.park){const o=st.park[k];if(o&&!o.bitti)a.push(o)}return a.sort((x,y)=>(y.son||y.basla||0)-(x.son||x.basla||0))}
 function modAd(m){return m==="deneme"?"Deneme":"Çalışma"}
 function renderResume(){
@@ -488,7 +696,8 @@ function startSession(ids,baslik,o){
   o=o||{};
   if(o.anahtar){const eski=(st.oturum&&st.oturum.anahtar===o.anahtar&&!st.oturum.bitti)?st.oturum:st.park[o.anahtar];
     if(eski&&!eski.bitti&&eski.ids.some(id=>st.sorular[id])){resumeSession(eski);return}}
-  ids=ids.filter(id=>st.sorular[id]);if(!ids.length)return;
+  const gizliler=ids.filter(id=>st.sorular[id]&&st.gizli[id]).length;
+  ids=ids.filter(id=>st.sorular[id]&&(o.gizliDahil||!st.gizli[id]));if(!ids.length){toast(gizliler?"Buradaki soruların hepsi gizli. Havuz › Gizlenen sorular'dan açabilirsin.":"Çözülecek soru bulunamadı.");return}
   parkCurrent();
   if(o.karistir)ids=shuffle(ids);
   ids=ids.slice(0,o.adet||st.ayar.adet);
@@ -497,7 +706,7 @@ function startSession(ids,baslik,o){
   save();openSession();
 }
 function openSession(){setView("oturum")}
-function applyAnswer(id,dogruMu){
+function applyAnswer(id,dogruMu){st.ayar.degisti=true;
   const p=st.prog[id]||{n:0,d:0,y:0,son:"",t:0};p.n++;dogruMu?p.d++:p.y++;p.son=dogruMu?"d":"y";p.t=Date.now();st.prog[id]=p;
   if(!dogruMu){const h=st.hata[id]||{y:0,t:0};h.y++;h.t=Date.now();st.hata[id]=h}
   else if(st.hata[id]&&st.ayar.hataOto)delete st.hata[id];
@@ -553,6 +762,7 @@ function renderSession(){
   const id=o.ids[o.cur],q=st.sorular[id],calisma=o.mod==="calisma",a=o.ans[o.cur],reveal=calisma&&a!==undefined;
   let d=0;const done=Object.keys(o.ans).length;o.ids.forEach((x,i)=>{if(o.ans[i]!==undefined&&st.sorular[x]&&o.ans[i]===st.sorular[x].dogru)d++});
   $("qinfo").textContent="Soru "+(o.cur+1)+" / "+o.ids.length+(calisma?" · Doğru "+d+" / "+done:" · "+done+" cevaplandı");
+  $("progBar").style.width=(o.ids.length?done/o.ids.length*100:0)+"%";
   const g=$("grid");g.textContent="";
   o.ids.forEach((x,i)=>{const b=el("button","",i+1);if(i===o.cur)b.classList.add("cur");
     if(o.ans[i]!==undefined){if(calisma)b.classList.add(st.sorular[x]&&o.ans[i]===st.sorular[x].dogru?"ok":"no");else b.classList.add("dn")}
@@ -561,10 +771,12 @@ function renderSession(){
   if(!q){card.append(el("p","","Bu soru havuzdan silinmiş."))}
   else{
     card.append(questionBody(q,o.sira[id],a,reveal,orig=>{
-      if(calisma){o.ans[o.cur]=orig;applyAnswer(id,orig===q.dogru);updateTabs()}
+      if(calisma){o.ans[o.cur]=orig;applyAnswer(id,orig===q.dogru);updateTabs();if(st.ayar.titresim&&navigator.vibrate){try{navigator.vibrate(orig===q.dogru?12:[20,50,20])}catch(e){}}}
       else{if(o.ans[o.cur]===orig)delete o.ans[o.cur];else o.ans[o.cur]=orig}
       save();renderSession()}));
     const qa=el("div","qacts");qa.append(starBtn(id,renderSession));
+    qa.append(st.gizli[id]?btn("👁 Gizlemeyi kaldır","sm",()=>{delete st.gizli[id];save();updateTabs();toast("Soru yeniden görünür.");renderSession()}):btn("🚫 Bu soruyu gösterme","sm",()=>{soruGizle(id);renderSession()}));
+    if(st.gizli[id])card.prepend(Object.assign(el("p","gizli-not","Bu soru gizli: sonraki oturumlara gelmeyecek."),{style:"margin:0 0 8px"}));
     if(reveal&&st.hata[id])qa.append(btn("Hata defterinden çıkar","sm",()=>{delete st.hata[id];save();updateTabs();renderSession()}));
     card.append(qa);
   }
@@ -574,6 +786,11 @@ function renderSession(){
 $("prev").onclick=()=>{const o=st.oturum;if(o&&o.cur>0){o.cur--;save();renderSession();window.scrollTo(0,0)}};
 $("next").onclick=()=>{const o=st.oturum;if(!o)return;if(o.cur<o.ids.length-1){o.cur++;save();renderSession();window.scrollTo(0,0)}else finishSession()};
 $("bitir").onclick=()=>finishSession();
+{let tx=null,ty=null,tt=0;const so=$("v-oturum");
+ so.addEventListener("touchstart",e=>{if(e.touches.length!==1){tx=null;return}tx=e.touches[0].clientX;ty=e.touches[0].clientY;tt=Date.now()},{passive:true});
+ so.addEventListener("touchend",e=>{if(tx===null||!st.ayar.kaydir)return;const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;tx=null;
+   if(Date.now()-tt>700||Math.abs(dx)<80||Math.abs(dy)>60)return;const sec=window.getSelection&&window.getSelection().toString();if(sec)return;
+   const o=st.oturum;if(!o)return;if(dx<0){if(o.cur<o.ids.length-1)$("next").click()}else $("prev").click()},{passive:true})}
 $("kapat").onclick=()=>setView("calis");
 function finishSession(){
   const o=st.oturum;if(!o||o.bitti){setView("sonuc");return}
@@ -608,7 +825,8 @@ function qYol(q){const k=st.klasor[q.kaynak];return (k?[k,q.kaynak]:[q.kaynak]).
 function listItems(box,ids,sub,remove,solveTitle){
   box.textContent="";
   if(!ids.length){box.append(el("small","",sub));return}
-  const hataMi=box.id==="hataList",ack=new Set(st.acikListe||[]);
+  const hataMi=box.id==="hataList",gizliMi=box.id==="gizliList",ack=new Set(st.acikListe||[]);
+  {const ix=new Map(st.sira.map((id,i)=>[id,i]));ids=ids.slice().sort((a,b)=>(ix.get(a)??1e9)-(ix.get(b)??1e9))}
   /* klasör > kaynak > bölüm > en alt başlık ağacı */
   const kok={cocuk:new Map(),ids:[],tum:[]};
   for(const id of ids){let n=kok;n.tum.push(id);let key=box.id;
@@ -618,13 +836,14 @@ function listItems(box,ids,sub,remove,solveTitle){
   const soru=id=>{const q=st.sorular[id],it=el("div","item");
     it.append(el("p","",q.soru.length>180?q.soru.slice(0,180)+"…":q.soru));
     if(hataMi&&st.hata[id])it.append(el("small","",st.hata[id].y+" kez yanlış"));
-    const a=el("div","acts");a.append(btn("Çöz","sm",()=>startSession([id],solveTitle,{adet:1,mod:"calisma"})),btn("Listeden çıkar","sm",()=>{remove(id);save();updateTabs();render()}));it.append(a);return it};
+    if(!gizliMi&&st.gizli[id])it.append(el("span","gizli-not","Gizli soru"));
+    const a=el("div","acts");a.append(btn("Çöz","sm",()=>startSession([id],solveTitle,{adet:1,mod:"calisma",gizliDahil:true})),btn(gizliMi?"👁 Göster (gizlemeyi kaldır)":"Listeden çıkar","sm",()=>{remove(id);save();updateTabs();render()}));it.append(a);return it};
   const ciz=(n,hedef)=>{
     for(const c of n.cocuk.values()){
       const d=el("details","grp");d.open=ack.has(c.key);
       d.ontoggle=()=>{const a=new Set(st.acikListe||[]);d.open?a.add(c.key):a.delete(c.key);st.acikListe=[...a];save()};
       const sm=el("summary");sm.append(el("span","ok","▸"),el("span","nm",c.ad),el("span","ct",c.tum.length+" soru"));
-      const go=btn("Çöz","sm",e=>{e.preventDefault();e.stopPropagation();startSession(c.tum,(hataMi?"Hata defteri":"Favoriler")+" · "+c.ad,{karistir:true,adet:c.tum.length,mod:hataMi?"calisma":undefined})});
+      const go=btn("Çöz","sm",e=>{e.preventDefault();e.stopPropagation();startSession(c.tum,(hataMi?"Hata defteri":gizliMi?"Gizli sorular":"Favoriler")+" · "+c.ad,{karistir:true,adet:c.tum.length,mod:hataMi||gizliMi?"calisma":undefined,gizliDahil:gizliMi})});
       go.setAttribute("aria-label",c.ad+" başlığındaki "+c.tum.length+" soruyu çöz");sm.append(go);d.append(sm);
       const ic=el("div","ic");
       if(d.open){ciz(c,ic);c.ids.forEach(id=>ic.append(soru(id)))}
@@ -651,57 +870,108 @@ function yolDegis(eskiP,yeniP){
   if(st.oturum)st.oturum.anahtar=fa(st.oturum.anahtar);
   const p={};for(const k in st.park){const o=st.park[k];o.anahtar=fa(o.anahtar||k);p[o.anahtar||k]=o}st.park=p;
 }
-function kaynakTasi(ad,klasor){const e=st.klasor[ad]||"";if(e===klasor)return;
-  yolDegis((e?e+SEP:"")+ad,(klasor?klasor+SEP:"")+ad);if(klasor)st.klasor[ad]=klasor;else delete st.klasor[ad];buildTree();save();renderHavuz()}
+function kaynakTasi(ad,klasor,sessiz){const e=kKlasor(ad);if(e===klasor)return;
+  yolDegis((e?e+SEP:"")+ad,(klasor?klasor+SEP:"")+ad);st.kaynakSira=st.kaynakSira.filter(x=>x!==ad);
+  if(klasor){klasorEkle(klasor);st.klasor[ad]=klasor}else delete st.klasor[ad];
+  buildTree();save();if(!sessiz)renderHavuz()}
 function klasorAdDegis(eski,yeni){yeni=str(yeni).replace(/\s+/g," ").trim().replace(/›/g,">");if(!yeni)return "Klasör adı boş olamaz.";if(yeni===eski)return "";
   if(st.klasorler.includes(yeni))return "“"+yeni+"” adında bir klasör zaten var.";
   st.klasorler=st.klasorler.map(k=>k===eski?yeni:k);for(const a in st.klasor)if(st.klasor[a]===eski)st.klasor[a]=yeni;
+  st.ustSira=st.ustSira.map(t=>t==="d:"+eski?"d:"+yeni:t);
   yolDegis(eski,yeni);buildTree();save();return ""}
-function klasorSil(k){for(const a of Object.keys(st.klasor))if(st.klasor[a]===k)kaynakTasi(a,"");st.klasorler=st.klasorler.filter(x=>x!==k);buildTree();save()}
+function klasorSil(k){for(const a of Object.keys(st.klasor))if(st.klasor[a]===k)kaynakTasi(a,"",true);st.klasorler=st.klasorler.filter(x=>x!==k);buildTree();save()}
 $("klasorEkle").onclick=()=>{const v=$("yeniKlasor").value;const ad=str(v).replace(/\s+/g," ").trim();if(!ad){havuzMsg("Klasör adını yaz.","err");return}
   if(st.klasorler.includes(ad.replace(/›/g,">"))){havuzMsg("“"+ad+"” adında bir klasör zaten var.","err");return}
-  const k=klasorEkle(ad);$("yeniKlasor").value="";save();havuzMsg("“"+k+"” klasörü oluşturuldu. Kaynakların altındaki listeden dosyaları bu klasöre taşıyabilir ya da yüklerken seçebilirsin.","ok");renderHavuz();$("impKlasor").value=k};
+  const k=klasorEkle(ad);$("yeniKlasor").value="";buildTree();save();havuzMsg("“"+k+"” klasörü oluşturuldu. Kaynakları ▼ menüsünden bu klasöre taşıyabilir ya da yüklerken seçebilirsin.","ok");renderHavuz();$("impKlasor").value=k};
 $("yeniKlasor").onkeydown=e=>{if(e.key==="Enter")$("klasorEkle").click()};
+function kaynakSil(a){const ids=kaynaklar().get(a)||[];
+  const yed={sira:st.sira.slice(),kaynakSira:st.kaynakSira.slice(),ustSira:st.ustSira.slice(),klasor:st.klasor[a],q:{},p:{},f:{},h:{},g:{},sel:st.sel.slice(),ot:JSON.stringify({o:st.oturum,p:st.park})};
+  for(const id of ids){yed.q[id]=st.sorular[id];if(st.prog[id])yed.p[id]=st.prog[id];if(st.fav[id])yed.f[id]=st.fav[id];if(st.hata[id])yed.h[id]=st.hata[id];if(st.gizli[id])yed.g[id]=st.gizli[id];delete st.gizli[id];delete st.sorular[id];delete st.prog[id];delete st.fav[id];delete st.hata[id]}
+  delete st.klasor[a];buildTree();temizleOturum();flush();updateTabs();renderHavuz();
+  toast("“"+a+"” silindi ("+ids.length+" soru).",{eylem:"Geri al",sure:10000,fn:()=>{
+    Object.assign(st.sorular,yed.q);Object.assign(st.prog,yed.p);Object.assign(st.fav,yed.f);Object.assign(st.hata,yed.h);Object.assign(st.gizli,yed.g);
+    if(yed.klasor){klasorEkle(yed.klasor);st.klasor[a]=yed.klasor}
+    st.sira=yed.sira;st.kaynakSira=yed.kaynakSira;st.ustSira=yed.ustSira;st.sel=yed.sel;try{const o=JSON.parse(yed.ot);st.oturum=o.o;st.park=o.p||{}}catch(e){}
+    buildTree();flush();render();toast("“"+a+"” geri getirildi.")}})}
+function kaynakBlok(a,ids,ilk,son,ust){
+  const frag=document.createDocumentFragment(),r=el("div","dz-k");
+  const nm=el("div","nm");nm.append(document.createTextNode(a),el("small","",ids.length+" soru · "+ids.filter(id=>st.prog[id]).length+" çözüldü"));
+  const y=btn("▲","sm ibtn",()=>kaynakKaydir(a,-1)),d=btn("▼","sm ibtn",()=>kaynakKaydir(a,1));y.disabled=ilk;d.disabled=son;
+  y.setAttribute("aria-label","“"+a+"” yukarı taşı");d.setAttribute("aria-label","“"+a+"” aşağı taşı");y.title="Yukarı taşı";d.title="Aşağı taşı";
+  r.append(nm,y,d);frag.append(r);
+  const ac=el("div","dz-a"),sel=el("select");sel.setAttribute("aria-label","“"+a+"” klasörü");
+  sel.append(new Option("Klasörsüz (en üst düzey)",""));for(const k of st.klasorler)sel.append(new Option("📁 "+k,k));sel.value=kKlasor(a);
+  sel.onchange=()=>{const k=sel.value;kaynakTasi(a,k);havuzMsg(k?"“"+a+"” → “"+k+"” klasörüne taşındı.":"“"+a+"” klasörden çıkarıldı.","ok")};
+  ac.append(sel,confirmBtn("Sil","sm danger",()=>kaynakSil(a)));frag.append(ac);
+  if(ust){const w=el("div","dz");w.append(frag);return w}return frag}
 function renderHavuz(){
-  const box=$("kaynakList");box.textContent="";
-  const kay=kaynaklar();
-  if(!kay.size)box.append(el("small","","Henüz soru yüklenmedi."));
-  for(const [ad,ids] of kay){const it=el("div","item");it.append(el("p","",ad),el("small","",ids.length+" soru · "+ids.filter(id=>st.prog[id]).length+" çözüldü"));
-    const sel=el("select");sel.setAttribute("aria-label","Klasör: "+ad);sel.style.marginTop="8px";
-    sel.append(new Option("Klasörsüz",""));for(const k of st.klasorler)sel.append(new Option("Klasör: "+k,k));sel.value=st.klasor[ad]||"";
-    sel.onchange=()=>{kaynakTasi(ad,sel.value);havuzMsg(sel.value?"“"+ad+"” → “"+sel.value+"” klasörüne taşındı.":"“"+ad+"” klasörden çıkarıldı.","ok")};
-    it.append(sel);
-    const a=el("div","acts");a.append(confirmBtn("Bu kaynağı sil","sm danger",()=>{for(const id of ids){delete st.sorular[id];delete st.prog[id];delete st.fav[id];delete st.hata[id]}delete st.klasor[ad];buildTree();temizleOturum();flush();havuzMsg("“"+ad+"” silindi.","ok");updateTabs();renderHavuz()}));it.append(a);box.append(it)}
-  const kb=$("klasorList");kb.textContent="";
-  if(!st.klasorler.length)kb.append(el("small","","Henüz klasör yok."));
-  for(const k of st.klasorler){const it=el("div","item");const ic=[...kay].filter(([a])=>st.klasor[a]===k);
-    it.append(el("p","","📁 "+k),el("small","",ic.length?ic.length+" kaynak · "+ic.reduce((t,[,x])=>t+x.length,0)+" soru":"Boş klasör"));
-    const a=el("div","acts");
-    a.append(btn("Adını değiştir","sm",()=>{a.textContent="";const inp=el("input");inp.type="text";inp.value=k;inp.maxLength=80;inp.setAttribute("aria-label","Yeni klasör adı");
-      const ok=btn("Kaydet","sm pri",()=>{const r=klasorAdDegis(k,inp.value);if(r)havuzMsg(r,"err");renderHavuz()});inp.onkeydown=e=>{if(e.key==="Enter")ok.click()};
-      a.append(inp,ok,btn("Vazgeç","sm",renderHavuz));inp.focus()}));
-    a.append(confirmBtn("Klasörü sil","sm danger",()=>{klasorSil(k);havuzMsg("“"+k+"” klasörü silindi. İçindeki sorular duruyor, klasörsüz kaldı.","ok");renderHavuz()}));
-    it.append(a);kb.append(it)}
+  const kay=kaynaklar(),box=$("duzenList");box.textContent="";
+  if(!st.ustSira.length)box.append(el("p","sub","Henüz klasör ya da soru yok. Önce bir soru dosyası yükle veya klasör oluştur."));
+  st.ustSira.forEach((t,ti)=>{const ad=t.slice(2),ilk=ti===0,son=ti===st.ustSira.length-1;
+    if(t[0]==="s"){box.append(kaynakBlok(ad,kay.get(ad)||[],ilk,son,true));return}
+    const ic=st.kaynakSira.filter(a=>st.klasor[a]===ad&&kay.has(a));
+    const w=el("div","dz"),h=el("div","dz-h"),nm=el("div","nm");
+    nm.append(document.createTextNode("📁 "+ad),el("small","",ic.length?ic.length+" kaynak · "+ic.reduce((x,a)=>x+kay.get(a).length,0)+" soru":"Boş klasör"));
+    const y=btn("▲","sm ibtn",()=>ustKaydir(t,-1)),d=btn("▼","sm ibtn",()=>ustKaydir(t,1));y.disabled=ilk;d.disabled=son;
+    y.setAttribute("aria-label","“"+ad+"” klasörünü yukarı taşı");d.setAttribute("aria-label","“"+ad+"” klasörünü aşağı taşı");
+    h.append(nm,y,d);w.append(h);
+    const ac=el("div","dz-a");ac.style.paddingTop="8px";
+    ac.append(btn("Adını değiştir","sm",()=>{ac.textContent="";const inp=el("input");inp.type="text";inp.value=ad;inp.maxLength=80;inp.setAttribute("aria-label","Yeni klasör adı");inp.style.flex="1";
+      const ok=btn("Kaydet","sm pri",()=>{const r=klasorAdDegis(ad,inp.value);if(r)havuzMsg(r,"err");renderHavuz()});inp.onkeydown=e=>{if(e.key==="Enter")ok.click();if(e.key==="Escape")renderHavuz()};
+      ac.append(inp,ok,btn("Vazgeç","sm",renderHavuz));inp.focus();inp.select()}));
+    if(ic.length>1){const b=btn("Bölüm numarasına göre sırala","sm",()=>{klasorIciSirala(ad);duzenUygula("“"+ad+"” içindeki kaynaklar bölüm numarasına göre sıralandı.")});ac.append(b)}
+    ac.append(confirmBtn("Klasörü sil","sm danger",()=>{klasorSil(ad);havuzMsg("“"+ad+"” klasörü silindi. İçindeki kaynaklar duruyor, klasörsüz kaldı.","ok");renderHavuz()}));
+    w.append(ac);
+    if(!ic.length){const bos=el("div","dz-k");bos.append(el("small","","Bu klasör boş. Yüklerken bu klasörü seç ya da bir kaynağın menüsünden buraya taşı."));w.append(bos)}
+    ic.forEach((a,i)=>w.append(kaynakBlok(a,kay.get(a),i===0,i===ic.length-1,false)));
+    box.append(w)});
+  show($("hepsiSirala"),st.ustSira.length>1||st.klasorler.length>0);
+  {const gids=Object.keys(st.gizli).filter(id=>st.sorular[id]);$("gizliH").textContent="Gizlenen sorular"+(gids.length?" ("+gids.length+")":"");
+   const ga=$("gizliActs");ga.textContent="";if(gids.length)ga.append(confirmBtn("Hepsini yeniden göster","sm",()=>{st.gizli={};save();updateTabs();toast("Gizlenen soruların hepsi yeniden görünür.");renderHavuz()}));
+   listItems($("gizliList"),gids,"Gizlenen soru yok.",id=>{delete st.gizli[id];toast("Soru yeniden görünür.")},"Gizli soru")}
   const ik=$("impKlasor"),eski=ik.value;ik.textContent="";ik.append(new Option("Klasörsüz",""));for(const k of st.klasorler)ik.append(new Option(k,k));ik.value=st.klasorler.includes(eski)?eski:"";
   document.querySelectorAll("#segTema button").forEach(b=>b.classList.toggle("on",b.dataset.v===st.ayar.tema));
   const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone;
   $("pwaDurum").textContent=standalone?"Uygulama olarak kurulu. İnternet olmadan da açılır.":("serviceWorker" in navigator?"Tarayıcıda açık. Ana ekrana eklersen uygulama gibi tam ekran ve çevrimdışı çalışır.":"Bu tarayıcı çevrimdışı kurulumu desteklemiyor.");
   show($("instBtn2"),!!deferredInstall);
+  document.querySelectorAll("#segOlcek button").forEach(b=>b.classList.toggle("on",+b.dataset.v===+st.ayar.olcek));
+  $("titresim").checked=!!st.ayar.titresim;$("kaydir").checked=!!st.ayar.kaydir;
+  depoGoster();
 }
+async function depoGoster(){const p=$("depoDurum");if(!navigator.storage||!navigator.storage.estimate){p.textContent="";return}
+  try{const e=await navigator.storage.estimate();let k=null;if(navigator.storage.persisted)k=await navigator.storage.persisted();
+    p.textContent="Kullanılan alan: "+mb(e.usage||0)+(e.quota?" / "+mb(e.quota):"")+(k===null?"":k?" · Kalıcı depolama açık: tarayıcı verileri kendiliğinden silmez.":" · Kalıcı depolama kapalı: tarayıcı yer açarken verileri silebilir, düzenli yedek al.")}catch(e){p.textContent=""}}
+function applyOlcek(){document.documentElement.style.setProperty("--olcek",String(+st.ayar.olcek||1))}
+document.querySelectorAll("#segOlcek button").forEach(b=>b.onclick=()=>{st.ayar.olcek=+b.dataset.v;applyOlcek();save();renderHavuz()});
+$("titresim").onchange=()=>{st.ayar.titresim=$("titresim").checked;save()};
+$("kaydir").onchange=()=>{st.ayar.kaydir=$("kaydir").checked;save()};
+$("hepsiSirala").onclick=()=>{st.ustSira=numaraylaSirala(st.ustSira,t=>t.slice(2));for(const k of st.klasorler)klasorIciSirala(k);duzenUygula("Klasörler ve kaynaklar bölüm numarasına göre sıralandı. Numarası olmayanların yeri değişmedi.")};
+$("hataKaydi").onclick=async()=>{const t="Soru Bankası "+APP_VERSION+"\n"+navigator.userAgent+"\n"+hataLog.join("\n");try{await navigator.clipboard.writeText(t);toast("Hata kaydı panoya kopyalandı.")}catch(e){download("hata-kaydi.txt",t,"text/plain")}};
 document.querySelectorAll("#segTema button").forEach(b=>b.onclick=()=>{st.ayar.tema=b.dataset.v;applyTema();save();renderHavuz()});
-$("yedek").onclick=()=>{if(!st.sira.length){havuzMsg("Yedeklenecek soru yok.","info");return}download("soru-bankasi-yedek-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(backupData()));havuzMsg("Yedek dosyası indirildi: "+st.sira.length+" soru ve ilerlemen içinde.","ok")};
+$("yedek").onclick=()=>{if(!st.sira.length){havuzMsg("Yedeklenecek soru yok.","info");return}download("soru-bankasi-yedek-"+new Date().toISOString().slice(0,10)+".json",JSON.stringify(backupData()));st.ayar.sonYedek=Date.now();st.ayar.degisti=false;save();show($("yedekHatir"),false);havuzMsg("Yedek dosyası indirildi: "+st.sira.length+" soru ve ilerlemen içinde.","ok")};
 $("sablon").onclick=()=>download("ornek-soru-sablonu.json",JSON.stringify(SABLON,null,2));
 $("sifIlerleme").replaceWith(confirmBtn("İlerlemeyi sıfırla","danger",()=>{st.prog={};st.hata={};st.oturum=null;st.park={};flush();havuzMsg("İlerleme ve hata defteri sıfırlandı. Sorular ve favoriler duruyor.","ok");updateTabs();renderHavuz()}));
-$("sifHepsi").replaceWith(confirmBtn("Tüm verileri sil","danger",()=>{st.sorular={};st.sira=[];st.prog={};st.fav={};st.hata={};st.sel=[];st.acik=[];st.oturum=null;st.park={};st.klasor={};st.klasorler=[];buildTree();flush();havuzMsg("Bütün sorular ve ilerleme silindi.","ok");updateTabs();renderHavuz()}));
-$("guncelle").onclick=async()=>{if(!("serviceWorker" in navigator)){havuzMsg("Bu tarayıcıda güncelleme denetimi yok.","info");return}try{const r=await navigator.serviceWorker.getRegistration();if(r){await r.update();havuzMsg("Denetlendi. Yeni sürüm varsa uygulamayı kapatıp açtığında gelir.","ok")}else havuzMsg("Çevrimdışı kurulum henüz etkin değil.","info")}catch(e){havuzMsg("Güncelleme denetlenemedi; internet bağlantını kontrol et.","err")}};
+$("sifHepsi").replaceWith(confirmBtn("Tüm verileri sil","danger",()=>{st.sorular={};st.sira=[];st.prog={};st.fav={};st.hata={};st.sel=[];st.acik=[];st.oturum=null;st.park={};st.klasor={};st.klasorler=[];st.kaynakSira=[];st.ustSira=[];st.acikListe=[];st.gizli={};buildTree();flush();havuzMsg("Bütün sorular ve ilerleme silindi.","ok");updateTabs();renderHavuz()}));
+$("guncelle").onclick=async()=>{if(!("serviceWorker" in navigator)){havuzMsg("Bu tarayıcıda güncelleme denetimi yok.","info");return}
+  try{const r=await navigator.serviceWorker.getRegistration();if(!r){havuzMsg("Çevrimdışı kurulum henüz etkin değil.","info");return}
+    toast("Güncelleme denetleniyor…",{sure:2500});await r.update();
+    if(r.waiting){guncellemeUygula(r.waiting);return}
+    if(r.installing){bekleVeUygula(r.installing);return}
+    havuzMsg("Uygulama güncel: sürüm "+APP_VERSION+".","ok")}catch(e){havuzMsg("Güncelleme denetlenemedi; internet bağlantını kontrol et.","err")}};
+function guncellemeUygula(w){if(!w)return;toast("Yeni sürüm yükleniyor…",{sure:3000});flush().finally(()=>w.postMessage({t:"skip"}))}
+function bekleVeUygula(w){w.addEventListener("statechange",()=>{if(w.state==="installed")guncellemeUygula(w)})}
+function guncellemeHazir(w){if(!navigator.serviceWorker.controller)return;
+  if(view!=="oturum"&&performance.now()<10000){guncellemeUygula(w);return}
+  toast("Uygulamanın yeni sürümü hazır.",{eylem:"Şimdi güncelle",sure:0,fn:()=>guncellemeUygula(w)})}
 
 /* ---------- gezinme ---------- */
 function updateTabs(){
   const f=favIds().length,h=hataIds().length;$("tFav").textContent="Favoriler"+(f?" ("+f+")":"");$("tHata").textContent="Hata defteri"+(h?" ("+h+")":"");
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===view));
 }
-function render(){updateTabs();if(view==="calis")renderHome();else if(view==="oturum")renderSession();else if(view==="sonuc")renderResult();else if(view==="fav")renderFav();else if(view==="hata")renderHata();else if(view==="havuz")renderHavuz()}
-function setView(v){view=v;["calis","oturum","sonuc","fav","hata","havuz"].forEach(x=>show($("v-"+x),x===v));render();window.scrollTo(0,0)}
+function render(){try{updateTabs();if(view==="calis")renderHome();else if(view==="oturum")renderSession();else if(view==="sonuc")renderResult();else if(view==="fav")renderFav();else if(view==="hata")renderHata();else if(view==="havuz")renderHavuz()}
+  catch(e){hataYakala((e&&e.message||e)+" ["+view+"]");if(view!=="calis"&&view!=="havuz"){view="calis";["calis","oturum","sonuc","fav","hata","havuz"].forEach(x=>show($("v-"+x),x==="calis"));try{renderHome()}catch(e2){}}}}
+function setView(v){if(v!==view){const sec=$("v-"+v);sec.style.animation="none";void sec.offsetWidth;sec.style.animation=""}view=v;["calis","oturum","sonuc","fav","hata","havuz"].forEach(x=>show($("v-"+x),x===v));render();window.scrollTo(0,0)}
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>setView(b.dataset.v));
 
 /* ---------- PWA ---------- */
@@ -713,11 +983,26 @@ window.addEventListener("appinstalled",()=>{show($("instBar"),false);show($("ins
 if("serviceWorker" in navigator&&location.protocol!=="file:"){
   const hadController=!!navigator.serviceWorker.controller;let reloaded=false;
   navigator.serviceWorker.addEventListener("controllerchange",()=>{if(hadController&&!reloaded){reloaded=true;flush().finally(()=>location.reload())}});
-  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>r.update()).catch(()=>{})});
+  window.addEventListener("load",()=>{navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{
+    if(r.waiting)guncellemeHazir(r.waiting);
+    r.addEventListener("updatefound",()=>{const w=r.installing;if(w)w.addEventListener("statechange",()=>{if(w.state==="installed")guncellemeHazir(w)})});
+    r.update().catch(()=>{});
+    document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")r.update().catch(()=>{})})}).catch(()=>{})});
 }
 
 $("surum").textContent="Sürüm "+APP_VERSION+" · "+APP_DATE;$("surumAlt").textContent="Sürüm "+APP_VERSION;
-(async()=>{await loadState();applyTema();buildTree();
+/* ---------- aynı anda birden çok pencere: veriler birbirinin üzerine yazılmasın ---------- */
+const sekmeId=Math.random().toString(36).slice(2);let kanal=null;
+try{kanal=new BroadcastChannel("sbvmy7c41-soru-bankasi");kanal.onmessage=e=>{const d=e.data||{};if(d.t==="merhaba"&&d.id!==sekmeId)saltYap()}}catch(e){kanal=null}
+function saltYap(){if(saltOkunur)return;if(saveT)flush();saltOkunur=true;
+  const ort=el("div","salt");ort.id="saltOrt";const c=el("div","card");
+  c.append(el("h2","","Uygulama başka bir pencerede açıldı"),el("p","sub","Soru Bankası şu an başka bir sekmede ya da pencerede de açık. Verilerin birbirinin üzerine yazılmasın diye bu pencere duraklatıldı. Burada yaptığın son değişiklikler kaydedildi."),
+    btn("Bu pencerede devam et","pri wide",async()=>{await loadState();saltOkunur=false;ort.remove();buildTree();if(kanal)kanal.postMessage({t:"merhaba",id:sekmeId});setView(view==="oturum"&&!st.oturum?"calis":view)}));
+  ort.append(c);document.body.append(ort)}
+(async()=>{if(kanal){kanal.postMessage({t:"merhaba",id:sekmeId});await new Promise(r=>setTimeout(r,180))}
+  await loadState();applyTema();applyOlcek();
+  if(st._gecis){const d=gecisDuzen();if(d)setTimeout(()=>toast("Sürüm 3.0: klasörlerin içindeki bölümler bölüm numarasına göre sıralandı. Sırayı Havuz › Klasörler ve sıralama bölümünden değiştirebilirsin.",{sure:12000}),400)}
+  delete st._gecis;buildTree();save();
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!navigator.standalone;
   if(ios&&!st.ayar.instNo){$("instTxt").textContent="iPhone ve iPad'de kurmak için Safari'de Paylaş düğmesine, ardından \"Ana Ekrana Ekle\"ye dokun.";show($("instBtn"),false);show($("instBar"),true)}
   setView("calis")})();

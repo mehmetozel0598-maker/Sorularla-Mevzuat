@@ -1,9 +1,15 @@
 const PREFIX = "sbvmy7c41-soru-bankasi-";
-const CACHE = PREFIX + "v10";
+const CACHE = PREFIX + "v13";
 const FILES = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)));
+  /* İlk kurulumda beklemeye gerek yok; güncellemede sayfa onay verince devreye girer. */
+  if (!self.registration.active) self.skipWaiting();
+});
+
+self.addEventListener("message", (e) => {
+  if (e.data && e.data.t === "skip") self.skipWaiting();
 });
 
 self.addEventListener("activate", (e) => {
